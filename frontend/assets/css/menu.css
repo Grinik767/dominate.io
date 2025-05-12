@@ -1,0 +1,41 @@
+﻿h1 {
+    color: white;
+}
+
+h1 span {
+    font-weight: normal;
+}
+
+
+.menuWrapper {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    box-sizing: border-box;
+    height: 100vh;
+}
+
+.menu {
+    padding: 2em
+;
+}
+
+.settingsHeader {
+    margin-left: 1em;
+}
+
+.settingsContainer {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    height: 100vh;
+}
+
+.settingsBody {
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+

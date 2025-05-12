@@ -1,0 +1,80 @@
+﻿:root {
+    --text-color: #A0A0A0;
+    --background-color: #1e1e1e;
+    --green-color: #c2fe0c;
+}
+
+body,html {
+    margin: 0;
+    padding: 0;
+}
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Inter, sans-serif;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    font-size: 28px;
+}
+
+p {
+    text-transform: uppercase;
+    font-weight: bold;
+    margin: 4px;
+}
+
+/* button */
+
+.inp, .btn {
+    box-sizing: border-box;
+    font-size: 16px;
+    line-height: 1;
+    text-align: left;
+    font-family: Inter, sans-serif;
+    font-weight: bold;
+    color: var(--text-color);
+
+    width: 100%;
+    height: 30px;
+    padding: 4px 10px;
+    margin: 4px;
+    background-color: #373737;
+
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.btn {
+    border: none;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.btn:hover {
+    color: var(--green-color);
+}
+
+.btn:active {
+    background-color: #5b5b5b;
+}
+
+/* input */
+
+.inp {
+    border: 2px solid transparent;
+    border-radius: 0;
+    box-sizing: border-box;
+}
+
+.inp.accept {
+    border: 2px solid var(--green-color);
+    color: var(--green-color);
+    box-shadow: 0 0 0 1px var(--green-color);
+}
+
+.inp.denied {
+    border: 2px solid red;
+    color: red;
+    box-shadow: 0 0 0 1px red;
+}

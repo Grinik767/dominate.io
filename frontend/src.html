@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #222; color: white; flex-direction: column; }
+        #game-container { display: grid; grid-template-columns: repeat(10, 40px); gap: 2px; margin-bottom: 20px; position: relative; }
+        .cell { width: 40px; height: 40px; background: gray; border-radius: 5px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-weight: bold; font-size: 14px; color: white; position: relative; }
+        .cell::after { content: ""; position: absolute; inset: 2px; border: 2px solid transparent; border-radius: 3px; }
+        .selected::after { border-color: yellow; }
+        #scoreboard { font-size: 18px; margin-bottom: 10px; }
+        #phase-button, #auto-upgrade { padding: 10px; margin: 5px; background: green; color: white; border: none; cursor: pointer; border-radius: 5px; }
+        #auto-upgrade { background: orange; display: none; }
+    </style>
+</head>
+<body>
+<div id="scoreboard">Очки влияния: <span id="points">2</span></div>
+<button id="phase-button">Перейти к фазе прокачки</button>
+<button id="auto-upgrade">Авто распределение</button>
+<div id="game-container"></div>
+<script>
+    const gridSize = 10;
+    const obstacleChance = 0.2;
+    const gameContainer = document.getElementById("game-container");
+    const pointsDisplay = document.getElementById("points");
+    const phaseButton = document.getElementById("phase-button");
+    const autoUpgradeButton = document.getElementById("auto-upgrade");
+    const playerDisplay = document.getElementById("current-player");
+
+    const players = [
+        { color: "blue", influencePoints: 0, ownedCells: new Set() },
+        { color: "red", influencePoints: 0, ownedCells: new Set() },
+        { color: "green", influencePoints: 0, ownedCells: new Set() }
+    ];
+    let currentPlayerIndex = 0;
+    let obstacleCells = new Set();
+    let selectedCell = null;
+    let capturePhase = true;
+
+    function createGrid() {
+        gameContainer.innerHTML = "";
+        let startIndices = [];
+        for (let i = 0; i < gridSize * gridSize; i++) {
+            let cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.dataset.index = i;
+            cell.dataset.power = 0;
+            cell.textContent = "0";
+
+            if (Math.random() < obstacleChance) {
+                cell.style.background = "#222";
+                cell.textContent = "";
+                obstacleCells.add(i);
+            } else {
+                cell.addEventListener("click", () => handleCellClick(cell));
+            }
+
+            gameContainer.appendChild(cell);
+        }
+
+        for (let player of players) {
+            let startIndex;
+            do {
+                startIndex = Math.floor(Math.random() * gridSize * gridSize);
+            } while (obstacleCells.has(startIndex) || startIndices.includes(startIndex));
+            startIndices.push(startIndex);
+
+            let startCell = gameContainer.children[startIndex];
+            startCell.dataset.power = 2;
+            startCell.textContent = "2";
+            startCell.style.background = player.color;
+            player.ownedCells.add(startIndex);
+        }
+    }
+
+    function handleCellClick(cell) {
+        let index = parseInt(cell.dataset.index);
+        let player = players[currentPlayerIndex];
+        if (capturePhase) {
+            if (player.ownedCells.has(index)) {
+                selectCell(cell);
+            } else if (selectedCell && canCapture(index, player)) {
+                captureCell(cell, player);
+            }
+        } else {
+            if (player.ownedCells.has(index)) {
+                upgradeCell(cell, player);
+            }
+        }
+    }
+
+    function selectCell(cell) {
+        if (selectedCell) {
+            selectedCell.classList.remove("selected");
+        }
+        selectedCell = cell;
+        selectedCell.classList.add("selected");
+    }
+
+    function canCapture(index, player) {
+        if (obstacleCells.has(index)) return false;
+        let neighbors = getNeighbors(index);
+        return neighbors.includes(parseInt(selectedCell.dataset.index)) && parseInt(selectedCell.dataset.power) > 1;
+    }
+
+    function captureCell(cell, player) {
+        let selectedPower = parseInt(selectedCell.dataset.power);
+        let targetPower = parseInt(cell.dataset.power);
+        let targetPlayer = players.find(p => p.ownedCells.has(parseInt(cell.dataset.index)));
+
+        if (!targetPlayer) {
+            if (selectedPower > 1) {
+                cell.dataset.power = selectedPower - 1;
+                selectedCell.dataset.power = 1;
+                cell.textContent = cell.dataset.power;
+                selectedCell.textContent = "1";
+                cell.style.background = player.color;
+                player.ownedCells.add(parseInt(cell.dataset.index));
+                selectCell(cell);
+            }
+        } else if (targetPlayer !== player) {
+            if (selectedPower >= targetPower) {
+                let success = selectedPower > targetPower || Math.random() < 0.5;
+                if (success) {
+                    targetPlayer.ownedCells.delete(parseInt(cell.dataset.index));
+                    player.ownedCells.add(parseInt(cell.dataset.index));
+                    cell.style.background = player.color;
+                    cell.dataset.power = selectedPower - 1;
+                    selectedCell.dataset.power = 1;
+                    cell.textContent = cell.dataset.power;
+                    selectedCell.textContent = "1";
+                    selectCell(cell);
+                } else {
+                    selectedCell.dataset.power = "1";
+                    selectedCell.textContent = "1";
+                }
+            } else {
+                cell.dataset.power = targetPower - (selectedPower - 1);
+                selectedCell.dataset.power = "1";
+                cell.textContent = cell.dataset.power;
+                selectedCell.textContent = "1";
+            }
+        }
+    }
+
+    function switchPhase() {
+        let player = players[currentPlayerIndex];
+        if (capturePhase) {
+            capturePhase = false;
+            player.influencePoints += player.ownedCells.size;
+            pointsDisplay.textContent = player.influencePoints;
+            autoUpgradeButton.style.display = "inline-block";
+            phaseButton.textContent = "Передать ход";
+            if (selectedCell) selectedCell.classList.remove("selected");
+            selectedCell = null;
+        } else {
+            capturePhase = true;
+            autoUpgradeButton.style.display = "none";
+            nextPlayer();
+        }
+    }
+
+    function nextPlayer() {
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+        phaseButton.textContent = "Перейти к фазе прокачки";
+    }
+
+    function upgradeCell(cell, player) {
+        if (player.influencePoints > 0 && parseInt(cell.dataset.power) < 10) {
+            cell.dataset.power++;
+            cell.textContent = cell.dataset.power;
+            player.influencePoints--;
+            pointsDisplay.textContent = player.influencePoints;
+        }
+    }
+
+    function autoUpgrade() {
+        let player = players[currentPlayerIndex];
+        while (player.influencePoints > 0) {
+            let upgradableCells = [...player.ownedCells].map(i => gameContainer.children[i]).filter(c => parseInt(c.dataset.power) < 10);
+            if (upgradableCells.length === 0) break;
+            let randomCell = upgradableCells[Math.floor(Math.random() * upgradableCells.length)];
+            upgradeCell(randomCell, player);
+        }
+    }
+
+    function getNeighbors(index) {
+        let neighbors = [];
+        let row = Math.floor(index / gridSize);
+        let col = index % gridSize;
+
+        if (row > 0) neighbors.push(index - gridSize);
+        if (row < gridSize - 1) neighbors.push(index + gridSize);
+        if (col > 0) neighbors.push(index - 1);
+        if (col < gridSize - 1) neighbors.push(index + 1);
+
+        return neighbors;
+    }
+
+    phaseButton.addEventListener("click", switchPhase);
+    autoUpgradeButton.addEventListener("click", autoUpgrade);
+    createGrid();
+</script>
+</body>
+</html>

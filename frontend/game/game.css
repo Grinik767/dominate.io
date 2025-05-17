@@ -1,0 +1,47 @@
+:root {
+    --hex-width: 64px;
+    --hex-height: 74px;
+    --hex-h-gap: 2px;
+    --hex-v-gap: 2px;
+    --hex-h-spacing: calc(var(--hex-width) + var(--hex-h-gap));
+    --hex-v-spacing: calc(var(--hex-height) - var(--hex-height) / 4 + var(--hex-v-gap));
+}
+
+body {
+    margin: 0;
+    background: #222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#hex-wrapper {
+    position: relative;
+    width: max-content;
+    height: max-content;
+}
+
+#game-container {
+    position: relative;
+}
+
+.hex-cell {
+    position: absolute;
+    width: var(--hex-width);
+    height: var(--hex-height);
+    background: gray;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    line-height: var(--hex-height);
+    font-size: 14px;
+    clip-path: polygon(
+            50% 0%,
+            100% 25%,
+            100% 75%,
+            50% 100%,
+            0% 75%,
+            0% 25%
+    );
+}

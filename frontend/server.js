@@ -7,8 +7,6 @@ const express = require('express');
 
 
 server.use(express.static(path.join(__dirname, 'public')));
-server.use('/assets', express.static(path.join(__dirname, 'assets')));
-
 
 
 server.use(middlewares);

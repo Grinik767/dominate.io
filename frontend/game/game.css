@@ -1,10 +1,11 @@
 :root {
-    --hex-width: 64px;
-    --hex-height: 74px;
+    --hex-width: 50px;
+    --hex-height: 58px;
     --hex-h-gap: 2px;
     --hex-v-gap: 2px;
     --hex-h-spacing: calc(var(--hex-width) + var(--hex-h-gap));
     --hex-v-spacing: calc(var(--hex-height) - var(--hex-height) / 4 + var(--hex-v-gap));
+    --player-color: #FFF;
 }
 
 body {
@@ -14,6 +15,14 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
 }
 
 #hex-wrapper {
@@ -26,16 +35,11 @@ body {
     position: relative;
 }
 
-.hex-cell {
+.hex-wrapper {
     position: absolute;
     width: var(--hex-width);
     height: var(--hex-height);
-    background: gray;
-    color: white;
-    text-align: center;
-    font-weight: bold;
-    line-height: var(--hex-height);
-    font-size: 14px;
+    background: white;
     clip-path: polygon(
             50% 0%,
             100% 25%,
@@ -44,4 +48,101 @@ body {
             0% 75%,
             0% 25%
     );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 0;
+    transition: transform 0.2s ease;
 }
+
+.hex-wrapper.selected {
+    transform: translateY(-8px);
+    z-index: 10;
+}
+
+.hex-cell {
+    width: 95%;
+    height: 95%;
+    background: #111;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1;
+    clip-path: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+#scoreboard {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--green-color);
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+#scoreboard span {
+    color: var(--green-color);
+}
+
+#controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+#buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+}
+
+#current-player {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px;
+    color: var(--green-color);
+}
+
+#current-player span {
+    text-transform: uppercase;
+    color: var(--player-color);
+}
+
+
+.button {
+    padding: 10px 20px;
+    font-weight: bold;
+    line-height: normal;
+    font-size: 25px;
+    border: none;
+    background-color: #333;
+    color: #fff;
+    border-radius: 2px;
+    transition: background 0.2s ease;
+    height: auto;
+    white-space: nowrap;
+}
+
+#phase-button {
+    color: #ccc;
+}
+
+#auto-upgrade {
+    color: orange;
+    display: none;
+}
+
+button:hover {
+    background-color: #555;
+}
+
+.highlight {
+    background-color: #FFC000;
+}
+

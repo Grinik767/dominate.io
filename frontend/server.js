@@ -12,7 +12,6 @@ server.use(express.static(path.join(__dirname, 'public')));
 server.use(middlewares);
 server.use(jsonServer.bodyParser);
 
-// Custom route to mock logic
 server.post('/api/connect', (req, res) => {
     const { code } = req.body;
     const sessions = router.db.get('sessions').value();

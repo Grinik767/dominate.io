@@ -56,23 +56,3 @@ h1 span {
 .menuItem:hover .indicator {
     background-color: var(--green-color);
 }
-
-
-.settingsHeader {
-    margin-left: 1em;
-}
-
-.settingsContainer {
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    height: 100vh;
-}
-
-.settingsBody {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-

@@ -1,0 +1,36 @@
+﻿.lobbyHeader{
+    display: flex;
+    justify-content: space-between;
+}
+
+.lobbyCode{
+    font-weight: unset;
+}
+
+.playerList{
+    margin-bottom: 20px;
+}
+
+.userRow{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 10px;
+}
+
+.indicator{
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin-right: 10px;
+    background-color: white;
+    transition: background-color 0.2s;
+}
+
+.indicator.ready {
+    background-color: var(--green-color);
+}
+
+.indicator.not-ready {
+    background-color: var(--gray-color);
+}

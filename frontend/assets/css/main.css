@@ -1,6 +1,7 @@
 ﻿:root {
     --text-color: #A0A0A0;
     --background-color: #1e1e1e;
+    --gray-color: #5b5b5b;
     --green-color: #c2fe0c;
 }
 
@@ -56,7 +57,11 @@ p {
 }
 
 .btn:active {
-    background-color: #5b5b5b;
+    background-color: var(--gray-color);
+}
+
+.red:hover {
+    color: red;
 }
 
 /* input */

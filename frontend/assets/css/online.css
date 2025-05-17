@@ -1,0 +1,59 @@
+﻿.serverBrowser{
+    display: flex;
+    gap: 20px
+}
+
+.serverList {
+    flex: 2;
+}
+
+.serverInfo {
+    flex: 1;
+    width: 400px;
+    font-size: 60%;
+}
+
+.infoRow {
+    display: flex;
+    justify-content: space-between;
+}
+
+.value {
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.box {
+    background-color: #373737;
+    padding: 15px;
+    border: 1px solid #444;
+    margin: 20px;
+}
+
+.serverStatus{
+    margin-top: 0;
+}
+
+table {
+    font-size: 80%;
+    width: 100%;
+    background-color: #373737;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border: none;
+}
+
+td:first-child {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+thead {
+    border: none;
+    background-color: #1e1f22;
+    color: white;
+}

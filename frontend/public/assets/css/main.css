@@ -72,6 +72,10 @@ p {
     box-sizing: border-box;
 }
 
+.inp:focus {
+    outline: none;
+}
+
 .inp.accept {
     border: 2px solid var(--green-color);
     color: var(--green-color);
@@ -82,4 +86,9 @@ p {
     border: 2px solid red;
     color: red;
     box-shadow: 0 0 0 1px red;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
 }

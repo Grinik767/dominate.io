@@ -1,10 +1,12 @@
-﻿.lobbyHeader{
-    display: flex;
-    justify-content: space-between;
+﻿.lobbyCode{
+    position: absolute;
+    right: 1em;
+    top: 1em;
 }
 
-.lobbyCode{
-    font-weight: unset;
+.lobbyCode h1{
+    margin: 0;
+    font-weight: normal;
 }
 
 .playerList{

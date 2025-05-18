@@ -1,26 +1,29 @@
-const hexWidth = 50;
-const hexHeight = 58;
-const hGap = 2;
-const vGap = 2;
-const hSpacing = hexWidth + hGap;
-const vSpacing = hexHeight - hexHeight / 4 + vGap;
-const radius = 5;
+import {HexCell} from "./hexCell.js";
 
-const container = document.getElementById("game-container");
-const pointsDisplay = document.getElementById("points");
-const phaseButton = document.getElementById("phase-button");
-const autoUpgradeButton = document.getElementById("auto-upgrade");
-const currentPlayerDisplay = document.getElementById("current-player");
+const hexWidth    = 50;
+const hexHeight   = 58;
+const hGap        = 2;
+const vGap        = 2;
+const hSpacing    = hexWidth + hGap;
+const vSpacing    = hexHeight - hexHeight / 4 + vGap;
+const radius      = 5;
+
+const container           = document.getElementById("game-container");
+const pointsDisplay       = document.getElementById("points");
+const phaseButton         = document.getElementById("phase-button");
+const autoUpgradeButton   = document.getElementById("auto-upgrade");
+const currentPlayerDisplay= document.getElementById("current-player");
 
 const players = [
-    { color: "blue", influencePoints: 0, ownedCells: new Set() },
-    { color: "red", influencePoints: 0, ownedCells: new Set() },
+    { color: "blue",  influencePoints: 0, ownedCells: new Set() },
+    { color: "red",   influencePoints: 0, ownedCells: new Set() },
     { color: "green", influencePoints: 0, ownedCells: new Set() }
 ];
 
 let currentPlayerIndex = 0;
-let selectedCell = null;
-let capturePhase = true;
+let selectedCell       = null;
+let capturePhase       = true;
+
 const cubeMap = new Map();
 
 const cubeDirections = [
@@ -32,14 +35,18 @@ function cubeKey(q, r) {
     return `${q},${r}`;
 }
 
+function randInRange(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function generateField(radius, skipChance = 0.2) {
     const cells = [];
     for (let q = -radius; q <= radius; q++) {
         for (let r = Math.max(-radius, -q - radius); r <= Math.min(radius, -q + radius); r++) {
             if (Math.random() < skipChance) continue;
-            const s = -q - r;
             cells.push({
-                q, r, s,
+                q, r,
+                s: -q - r,
                 power: 0,
                 owner: null,
                 size: Math.random() < 0.2 ? "big" : "small"
@@ -49,54 +56,28 @@ function generateField(radius, skipChance = 0.2) {
     return cells;
 }
 
-function renderHexGrid(cells) {
+function renderHexGrid(cellsData) {
     container.innerHTML = "";
     cubeMap.clear();
 
-    const qVals = cells.map(c => c.q);
-    const rVals = cells.map(c => c.r);
-    const qMin = Math.min(...qVals);
-    const qMax = Math.max(...qVals);
-    const rMin = Math.min(...rVals);
-    const rMax = Math.max(...rVals);
+    const qs = cellsData.map(c => c.q);
+    const rs = cellsData.map(c => c.r);
+    const qMin = Math.min(...qs), qMax = Math.max(...qs);
+    const rMin = Math.min(...rs), rMax = Math.max(...rs);
 
-    const totalWidth = (qMax - qMin + 1) * hSpacing + hexWidth;
+    const totalWidth  = (qMax - qMin + 1) * hSpacing + hexWidth;
     const totalHeight = (rMax - rMin + 1) * vSpacing + hexHeight;
-    const centerX = totalWidth / 2;
-    const centerY = totalHeight / 2;
+    const centerX     = totalWidth  / 2;
+    const centerY     = totalHeight / 2;
 
-    container.style.width = `${totalWidth}px`;
+    container.style.width  = `${totalWidth}px`;
     container.style.height = `${totalHeight}px`;
 
-    for (const cellData of cells) {
-        const { q, r, s, power, owner, size = "small" } = cellData;
-        const key = cubeKey(q, r);
-        const x = (q + r / 2) * hSpacing + centerX;
-        const y = r * vSpacing + centerY;
-
-        const wrapper = document.createElement("div");
-        wrapper.className = `hex-wrapper hex-${size}`;
-        wrapper.style.left = `${x}px`;
-        wrapper.style.top = `${y}px`;
-
-        const cell = document.createElement("div");
-        cell.className = `hex-cell hex-${size}`;
-        cell.textContent = power;
-        cell.dataset.q = q;
-        cell.dataset.r = r;
-        cell.dataset.s = s;
-        cell.dataset.power = power;
-        cell.dataset.size = size;
-
-        if (owner) {
-            cell.style.background = owner.color;
-            cell.dataset.owner = players.indexOf(owner);
-        }
-
-        cell.addEventListener("click", () => handleCellClick(cell));
-        wrapper.appendChild(cell);
-        container.appendChild(wrapper);
-        cubeMap.set(key, cell);
+    for (const data of cellsData) {
+        const cell = new HexCell(data, players, hSpacing, vSpacing, centerX, centerY);
+        cell.setClickHandler(handleCellClick);
+        container.appendChild(cell.wrapper);
+        cubeMap.set(cubeKey(data.q, data.r), cell);
     }
 
     placeStartingCells();
@@ -104,140 +85,136 @@ function renderHexGrid(cells) {
 }
 
 function placeStartingCells() {
-    players.forEach((player, i) => {
+    players.forEach((player, idx) => {
         let cell, key;
         do {
-            const q = Math.floor(Math.random() * radius * 2 - radius);
-            const r = Math.floor(Math.random() * radius * 2 - radius);
+            const q = randInRange(-radius, radius);
+            const r = randInRange(Math.max(-radius, -q - radius), Math.min(radius, -q + radius));
             key = cubeKey(q, r);
             cell = cubeMap.get(key);
-        } while (!cell || cell.dataset.owner);
+        } while (!cell || player.ownedCells.has(key));
 
-        cell.dataset.power = 2;
-        cell.textContent = "2";
-        cell.dataset.owner = i;
-        cell.style.background = player.color;
+        cell.setPower(2);
+        cell.setOwner(idx);
         player.ownedCells.add(key);
     });
 }
 
 function handleCellClick(cell) {
-    const key = cubeKey(+cell.dataset.q, +cell.dataset.r);
     const player = players[currentPlayerIndex];
+    const key    = cubeKey(cell.q, cell.r);
 
     if (capturePhase) {
         if (player.ownedCells.has(key)) {
             selectCell(cell);
-        } else if (selectedCell && canCapture(cell)) {
-            captureCell(cell, player);
+        } else if (selectedCell && canCapture(selectedCell, cell)) {
+            captureCell(selectedCell, cell);
         }
     } else {
         if (player.ownedCells.has(key)) {
-            upgradeCell(cell, player);
+            upgradeCell(cell);
         }
     }
 }
 
 function selectCell(cell) {
     if (selectedCell) {
-        selectedCell.parentElement.classList.remove("selected");
-        selectedCell.classList.remove("selected");
+        selectedCell.deselect();
     }
-
     clearHighlights();
 
-    if (+cell.dataset.power > 1) {
+    if (cell.power > 1) {
         selectedCell = cell;
-        selectedCell.classList.add("selected");
-        selectedCell.parentElement.classList.add("selected");
+        cell.select();
         highlightNeighbors(cell);
     }
 }
 
-function canCapture(target) {
-    const fromQ = +selectedCell.dataset.q;
-    const fromR = +selectedCell.dataset.r;
-    const toQ = +target.dataset.q;
-    const toR = +target.dataset.r;
-
-    const dq = toQ - fromQ;
-    const dr = toR - fromR;
-    const isNeighbor = cubeDirections.some(dir => dir.q === dq && dir.r === dr);
-    const attackerPower = +selectedCell.dataset.power;
-    const isOwn = players[currentPlayerIndex].ownedCells.has(cubeKey(toQ, toR));
-
-    return isNeighbor && attackerPower > 1 && !isOwn;
-}
-
-function captureCell(cell, player) {
-    const fromPower = +selectedCell.dataset.power;
-    const targetPower = +cell.dataset.power;
-    const key = cubeKey(+cell.dataset.q, +cell.dataset.r);
-    const oldOwnerIndex = +cell.dataset.owner;
-    const oldOwner = players[oldOwnerIndex];
-
-    const isOwned = cell.dataset.owner !== undefined;
-    const isEnemy = isOwned && oldOwner !== player;
-    const isEmpty = !isOwned || targetPower === 0;
-
-    if (isEmpty) {
-        attemptCaptureEmpty(cell, player, fromPower, key);
-    } else if (isEnemy) {
-        attemptCaptureEnemy(cell, player, oldOwner, fromPower, targetPower, key);
-    }
-
-    if (+cell.dataset.power <= 0) {
-        clearCell(cell, key, oldOwner);
-    }
-}
-
-function attemptCaptureEmpty(cell, player, fromPower, key) {
-    if (fromPower <= 1) return;
-    cell.dataset.power = fromPower - 1;
-    selectedCell.dataset.power = 1;
-    cell.textContent = cell.dataset.power;
-    selectedCell.textContent = "1";
-    cell.style.background = player.color;
-    player.ownedCells.add(key);
-    cell.dataset.owner = currentPlayerIndex;
-    selectCell(cell);
-}
-
-function attemptCaptureEnemy(cell, player, oldOwner, fromPower, targetPower, key) {
-    const chance = getCaptureChance(fromPower - targetPower);
-    if (Math.random() < chance) {
-        oldOwner.ownedCells.delete(key);
-        player.ownedCells.add(key);
-        cell.dataset.owner = currentPlayerIndex;
-        cell.style.background = player.color;
-        cell.dataset.power = fromPower - 1;
-        selectedCell.dataset.power = 1;
-        cell.textContent = cell.dataset.power;
-        selectedCell.textContent = "1";
-        if (oldOwner.ownedCells.size === 0) {
-            eliminatePlayer(oldOwner);
+function highlightNeighbors(cell) {
+    const player = players[currentPlayerIndex];
+    cubeDirections.forEach(dir => {
+        const neighbor = cubeMap.get(cubeKey(cell.q + dir.q, cell.r + dir.r));
+        if (neighbor && !player.ownedCells.has(cubeKey(neighbor.q, neighbor.r))) {
+            neighbor.highlight();
         }
-        selectCell(cell);
-    } else {
-        selectedCell.dataset.power = "1";
-        selectedCell.textContent = "1";
+    });
+}
+
+function clearHighlights() {
+    cubeMap.forEach(c => c.clearHighlight());
+}
+
+function canCapture(from, to) {
+    const dq = to.q - from.q;
+    const dr = to.r - from.r;
+    const isNeighbor = cubeDirections.some(d => d.q === dq && d.r === dr);
+    const player     = players[currentPlayerIndex];
+    const targetKey  = cubeKey(to.q, to.r);
+    return isNeighbor && from.power > 1 && !player.ownedCells.has(targetKey);
+}
+
+function captureCell(from, to) {
+    const player       = players[currentPlayerIndex];
+    const fromPower    = from.power;
+    const targetPower  = to.power;
+    const targetKey    = cubeKey(to.q, to.r);
+    const oldOwner     = to.owner;
+    const oldOwnerIdx  = oldOwner ? players.indexOf(oldOwner) : null;
+
+    if (!oldOwner || targetPower === 0) {
+        to.setPower(fromPower - 1);
+        from.setPower(1);
+        to.setOwner(currentPlayerIndex);
+        player.ownedCells.add(targetKey);
+        selectCell(to);
+
+    } else if (oldOwnerIdx !== currentPlayerIndex) {
+        const chance = getCaptureChance(fromPower - targetPower);
+        if (Math.random() < chance) {
+            players[oldOwnerIdx].ownedCells.delete(targetKey);
+            to.setOwner(currentPlayerIndex);
+            to.setPower(Math.max(fromPower - targetPower, 1));
+            from.setPower(1);
+            player.ownedCells.add(targetKey);
+            if (players[oldOwnerIdx].ownedCells.size === 0) {
+                eliminatePlayer(oldOwner);
+            }
+            selectCell(to);
+        } else {
+            from.setPower(1);
+            to.setPower(Math.max(targetPower - fromPower, 1));
+        }
     }
 }
 
 function getCaptureChance(diff) {
     if (diff <= -2) return 0;
     if (diff === -1) return 0.25;
-    if (diff === 0) return 0.5;
-    if (diff === 1) return 0.75;
+    if (diff ===  0) return 0.5;
+    if (diff ===  1) return 0.75;
     return 1;
 }
 
-function clearCell(cell, key, oldOwner) {
-    delete cell.dataset.owner;
-    cell.dataset.power = "0";
-    cell.textContent = "0";
-    cell.style.background = "#111";
-    if (oldOwner) oldOwner.ownedCells.delete(key);
+function upgradeCell(cell) {
+    const player   = players[currentPlayerIndex];
+    const maxPower = cell.sizeType === "big" ? 12 : 8;
+    if (player.influencePoints > 0 && cell.power < maxPower) {
+        cell.setPower(cell.power + 1)
+        player.influencePoints--;
+        pointsDisplay.textContent = player.influencePoints;
+    }
+}
+
+function autoUpgrade() {
+    const player = players[currentPlayerIndex];
+    while (player.influencePoints > 0) {
+        const upgradable = [...player.ownedCells]
+            .map(key => cubeMap.get(key))
+            .filter(c => c.power < (c.sizeType === "big" ? 12 : 8));
+        if (upgradable.length === 0) break;
+        const choice = upgradable[Math.floor(Math.random() * upgradable.length)];
+        upgradeCell(choice);
+    }
 }
 
 function switchPhase() {
@@ -247,7 +224,7 @@ function switchPhase() {
         player.influencePoints += player.ownedCells.size;
         pointsDisplay.textContent = player.influencePoints;
         autoUpgradeButton.style.display = "inline-block";
-        phaseButton.textContent = "Передать ход";
+        phaseButton.textContent        = "Передать ход";
     } else {
         capturePhase = true;
         autoUpgradeButton.style.display = "none";
@@ -256,11 +233,9 @@ function switchPhase() {
     }
 
     if (selectedCell) {
-        selectedCell.parentElement.classList.remove("selected");
-        selectedCell.classList.remove("selected");
+        selectedCell.deselect();
         selectedCell = null;
     }
-
     clearHighlights();
     updateCurrentPlayerDisplay();
 }
@@ -271,24 +246,25 @@ function nextPlayer() {
 }
 
 function eliminatePlayer(playerToRemove) {
-    const index = players.indexOf(playerToRemove);
-    if (index === -1) return;
-    players.splice(index, 1);
+    const idx = players.indexOf(playerToRemove);
+    if (idx === -1) return;
+
+    players.splice(idx, 1);
     if (players.length === 0) {
         alert("Никто не победил.");
         return;
     }
-    if (currentPlayerIndex >= index) {
+    if (currentPlayerIndex >= idx) {
         currentPlayerIndex = Math.max(0, currentPlayerIndex - 1);
     }
+
     cubeMap.forEach(cell => {
-        const ownerIndex = +cell.dataset.owner;
-        if (ownerIndex > index) {
-            cell.dataset.owner = ownerIndex - 1;
-        } else if (ownerIndex === index) {
-            delete cell.dataset.owner;
+        if (cell.owner === playerToRemove) {
+            cell.setOwner(null)
         }
+        cell.updateVisual();
     });
+
     if (players.length === 1) {
         setTimeout(() => {
             alert(`Победил игрок: ${players[0].color.toUpperCase()}!`);
@@ -296,53 +272,11 @@ function eliminatePlayer(playerToRemove) {
     }
 }
 
-function upgradeCell(cell, player) {
-    const maxPower = cell.dataset.size === "big" ? 12 : 8;
-    if (player.influencePoints > 0 && +cell.dataset.power < maxPower) {
-        cell.dataset.power++;
-        cell.textContent = cell.dataset.power;
-        player.influencePoints--;
-        pointsDisplay.textContent = player.influencePoints;
-    }
-}
-
-function autoUpgrade() {
-    const player = players[currentPlayerIndex];
-    while (player.influencePoints > 0) {
-        const upgradable = [...player.ownedCells]
-            .map(k => cubeMap.get(k))
-            .filter(c => +c.dataset.power < (c.dataset.size === "big" ? 12 : 8));
-        if (!upgradable.length) break;
-        const cell = upgradable[Math.floor(Math.random() * upgradable.length)];
-        upgradeCell(cell, player);
-    }
-}
-
 function updateCurrentPlayerDisplay() {
-    const color = players[currentPlayerIndex]?.color || "gray";
-    const nameMap = { blue: "СИНИЙ", red: "КРАСНЫЙ", green: "ЗЕЛЁНЫЙ" };
-    const display = document.getElementById("player-color-name");
-    if (display) {
-        display.textContent = nameMap[color] || color.toUpperCase();
-        display.style.color = color;
-    }
-}
-
-function highlightNeighbors(cell) {
-    const q = +cell.dataset.q;
-    const r = +cell.dataset.r;
     const player = players[currentPlayerIndex];
-
-    cubeDirections.forEach(dir => {
-        const key = cubeKey(q + dir.q, r + dir.r);
-        const neighbor = cubeMap.get(key);
-        if (!neighbor || player.ownedCells.has(key)) return;
-        neighbor.parentElement.classList.add("highlight");
-    });
-}
-
-function clearHighlights() {
-    container.querySelectorAll(".highlight").forEach(c => c.classList.remove("highlight"));
+    const nameMap = { blue: "СИНИЙ", red: "КРАСНЫЙ", green: "ЗЕЛЁНЫЙ" };
+    currentPlayerDisplay.textContent = nameMap[player.color] || player.color.toUpperCase();
+    currentPlayerDisplay.style.color = player.color;
 }
 
 phaseButton.addEventListener("click", switchPhase);

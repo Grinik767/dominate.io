@@ -146,6 +146,10 @@ button:hover {
     background-color: #FFC000;
 }
 
+.hidden {
+    display: none !important;
+}
+
 .hex-wrapper.hex-big::after {
     content: "";
     position: absolute;

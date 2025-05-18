@@ -1,12 +1,12 @@
 export class HexCell {
     constructor(cellData, players, hSpacing, vSpacing, centerX, centerY) {
-        this.q = cellData.q;
-        this.r = cellData.r;
-        this.s = cellData.s;
-        this.sizeType = cellData.size || 'small';
-        this.power = cellData.power;
-        this.owner = cellData.owner;
-        this.players = players;
+        this.q          = cellData.q;
+        this.r          = cellData.r;
+        this.s          = cellData.s;
+        this.sizeType   = cellData.size || 'small';
+        this.power      = cellData.power;
+        this.ownerIndex = cellData.owner;
+        this.players    = players;
 
         const x = (this.q + this.r / 2) * hSpacing + centerX;
         const y = this.r * vSpacing + centerY;
@@ -37,7 +37,12 @@ export class HexCell {
     }
 
     setOwner(index) {
-        this.owner = (index != null) ? this.players[index] : null;
+        this.ownerIndex = index;
+        this.updateVisual();
+    }
+
+    clearOwner() {
+        this.ownerIndex = null;
         this.updateVisual();
     }
 
@@ -60,17 +65,17 @@ export class HexCell {
     }
 
     updateVisual() {
-        this.el.dataset.q = this.q;
-        this.el.dataset.r = this.r;
-        this.el.dataset.s = this.s;
-        this.el.dataset.size = this.sizeType;
+        this.el.dataset.q     = this.q;
+        this.el.dataset.r     = this.r;
+        this.el.dataset.s     = this.s;
+        this.el.dataset.size  = this.sizeType;
         this.el.dataset.power = this.power;
 
         this.el.textContent = this.power;
-        if (this.owner) {
-            const idx = this.players.indexOf(this.owner);
-            this.el.dataset.owner = idx;
-            this.el.style.background = this.owner.color;
+
+        if (this.ownerIndex != null) {
+            this.el.dataset.owner = this.ownerIndex;
+            this.el.style.background = this.players[this.ownerIndex].color;
         } else {
             this.el.removeAttribute('data-owner');
             this.el.style.background = '#111';

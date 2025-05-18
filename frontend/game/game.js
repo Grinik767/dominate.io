@@ -1,23 +1,29 @@
-import {HexCell} from "./hexCell.js";
+import { HexCell } from './hexCell.js';
+import { Button, Display, GameBoard } from './ui.js';
 
-const hexWidth    = 50;
-const hexHeight   = 58;
-const hGap        = 2;
-const vGap        = 2;
-const hSpacing    = hexWidth + hGap;
-const vSpacing    = hexHeight - hexHeight / 4 + vGap;
-const radius      = 5;
+const hexWidth  = 50;
+const hexHeight = 58;
+const hGap      = 2;
+const vGap      = 2;
+const hSpacing  = hexWidth + hGap;
+const vSpacing  = hexHeight - hexHeight/4 + vGap;
+const radius    = 5;
 
-const container           = document.getElementById("game-container");
-const pointsDisplay       = document.getElementById("points");
-const phaseButton         = document.getElementById("phase-button");
-const autoUpgradeButton   = document.getElementById("auto-upgrade");
-const currentPlayerDisplay= document.getElementById("current-player");
+const board                  = new GameBoard('game-container');
+const switchPhaseButton      = new Button('phase-button');
+const autoUpgradeButton      = new Button('auto-upgrade');
+const powerPointsLabel       = new Display('points');
+const currentPlayerLabel     = new Display('player-color-name');
+
+switchPhaseButton.onClick(switchPhase);
+autoUpgradeButton.onClick(autoUpgrade);
+
+autoUpgradeButton.hide();
 
 const players = [
-    { color: "blue",  influencePoints: 0, ownedCells: new Set() },
-    { color: "red",   influencePoints: 0, ownedCells: new Set() },
-    { color: "green", influencePoints: 0, ownedCells: new Set() }
+    { color: 'blue',  influencePoints: 0, ownedCells: new Set() },
+    { color: 'red',   influencePoints: 0, ownedCells: new Set() },
+    { color: 'green', influencePoints: 0, ownedCells: new Set() }
 ];
 
 let currentPlayerIndex = 0;
@@ -25,10 +31,9 @@ let selectedCell       = null;
 let capturePhase       = true;
 
 const cubeMap = new Map();
-
 const cubeDirections = [
-    { q: +1, r: -1 }, { q: +1, r: 0 }, { q: 0, r: +1 },
-    { q: -1, r: +1 }, { q: -1, r: 0 }, { q: 0, r: -1 }
+    { q:+1, r:-1 }, { q:+1, r:0 }, { q:0, r:+1 },
+    { q:-1, r:+1}, { q:-1, r:0 }, { q:0, r:-1 }
 ];
 
 function cubeKey(q, r) {
@@ -40,43 +45,39 @@ function randInRange(min, max) {
 }
 
 function generateField(radius, skipChance = 0.2) {
-    const cells = [];
+    const arr = [];
     for (let q = -radius; q <= radius; q++) {
-        for (let r = Math.max(-radius, -q - radius); r <= Math.min(radius, -q + radius); r++) {
+        for (let r = Math.max(-radius, -q-radius); r <= Math.min(radius, -q+radius); r++) {
             if (Math.random() < skipChance) continue;
-            cells.push({
-                q, r,
-                s: -q - r,
+            arr.push({
+                q, r, s: -q - r,
                 power: 0,
                 owner: null,
-                size: Math.random() < 0.2 ? "big" : "small"
+                size: Math.random() < 0.2 ? 'big' : 'small'
             });
         }
     }
-    return cells;
+    return arr;
 }
 
-function renderHexGrid(cellsData) {
-    container.innerHTML = "";
+function renderHexGrid(cells) {
+    board.clear();
     cubeMap.clear();
 
-    const qs = cellsData.map(c => c.q);
-    const rs = cellsData.map(c => c.r);
+    const qs = cells.map(c => c.q);
+    const rs = cells.map(c => c.r);
     const qMin = Math.min(...qs), qMax = Math.max(...qs);
     const rMin = Math.min(...rs), rMax = Math.max(...rs);
 
-    const totalWidth  = (qMax - qMin + 1) * hSpacing + hexWidth;
-    const totalHeight = (rMax - rMin + 1) * vSpacing + hexHeight;
-    const centerX     = totalWidth  / 2;
-    const centerY     = totalHeight / 2;
+    const totalW = (qMax - qMin + 1) * hSpacing + hexWidth;
+    const totalH = (rMax - rMin + 1) * vSpacing + hexHeight;
+    const cx = totalW / 2, cy = totalH / 2;
+    board.setSize(totalW, totalH);
 
-    container.style.width  = `${totalWidth}px`;
-    container.style.height = `${totalHeight}px`;
-
-    for (const data of cellsData) {
-        const cell = new HexCell(data, players, hSpacing, vSpacing, centerX, centerY);
+    for (const data of cells) {
+        const cell = new HexCell(data, players, hSpacing, vSpacing, cx, cy);
         cell.setClickHandler(handleCellClick);
-        container.appendChild(cell.wrapper);
+        board.append(cell.wrapper);
         cubeMap.set(cubeKey(data.q, data.r), cell);
     }
 
@@ -85,42 +86,40 @@ function renderHexGrid(cellsData) {
 }
 
 function placeStartingCells() {
-    players.forEach((player, idx) => {
+    players.forEach((pl, idx) => {
         let cell, key;
         do {
             const q = randInRange(-radius, radius);
-            const r = randInRange(Math.max(-radius, -q - radius), Math.min(radius, -q + radius));
+            const r = randInRange(Math.max(-radius, -q-radius), Math.min(radius, -q+radius));
             key = cubeKey(q, r);
             cell = cubeMap.get(key);
-        } while (!cell || player.ownedCells.has(key));
+        } while (!cell || pl.ownedCells.has(key));
 
         cell.setPower(2);
         cell.setOwner(idx);
-        player.ownedCells.add(key);
+        pl.ownedCells.add(key);
     });
 }
 
 function handleCellClick(cell) {
-    const player = players[currentPlayerIndex];
-    const key    = cubeKey(cell.q, cell.r);
+    const pl  = players[currentPlayerIndex];
+    const key = cubeKey(cell.q, cell.r);
 
     if (capturePhase) {
-        if (player.ownedCells.has(key)) {
+        if (pl.ownedCells.has(key)) {
             selectCell(cell);
         } else if (selectedCell && canCapture(selectedCell, cell)) {
             captureCell(selectedCell, cell);
         }
     } else {
-        if (player.ownedCells.has(key)) {
+        if (pl.ownedCells.has(key)) {
             upgradeCell(cell);
         }
     }
 }
 
 function selectCell(cell) {
-    if (selectedCell) {
-        selectedCell.deselect();
-    }
+    if (selectedCell) selectedCell.deselect();
     clearHighlights();
 
     if (cell.power > 1) {
@@ -131,10 +130,10 @@ function selectCell(cell) {
 }
 
 function highlightNeighbors(cell) {
-    const player = players[currentPlayerIndex];
+    const pl = players[currentPlayerIndex];
     cubeDirections.forEach(dir => {
         const neighbor = cubeMap.get(cubeKey(cell.q + dir.q, cell.r + dir.r));
-        if (neighbor && !player.ownedCells.has(cubeKey(neighbor.q, neighbor.r))) {
+        if (neighbor && !pl.ownedCells.has(cubeKey(neighbor.q, neighbor.r))) {
             neighbor.highlight();
         }
     });
@@ -145,91 +144,93 @@ function clearHighlights() {
 }
 
 function canCapture(from, to) {
-    const dq = to.q - from.q;
-    const dr = to.r - from.r;
-    const isNeighbor = cubeDirections.some(d => d.q === dq && d.r === dr);
-    const player     = players[currentPlayerIndex];
-    const targetKey  = cubeKey(to.q, to.r);
-    return isNeighbor && from.power > 1 && !player.ownedCells.has(targetKey);
+    const dq     = to.q - from.q;
+    const dr     = to.r - from.r;
+    const neigh  = cubeDirections.some(d => d.q === dq && d.r === dr);
+    const pl     = players[currentPlayerIndex];
+    const target = cubeKey(to.q, to.r);
+    return neigh && from.power > 1 && !pl.ownedCells.has(target);
 }
 
 function captureCell(from, to) {
-    const player       = players[currentPlayerIndex];
-    const fromPower    = from.power;
-    const targetPower  = to.power;
-    const targetKey    = cubeKey(to.q, to.r);
-    const oldOwner     = to.owner;
-    const oldOwnerIdx  = oldOwner ? players.indexOf(oldOwner) : null;
+    const pl = players[currentPlayerIndex];
+    const fromPower = from.power;
+    const toPower = to.power;
+    const key = cubeKey(to.q, to.r);
+    const oldIdx = to.ownerIndex;
 
-    if (!oldOwner || targetPower === 0) {
+    if (oldIdx == null || toPower === 0) {
         to.setPower(fromPower - 1);
         from.setPower(1);
         to.setOwner(currentPlayerIndex);
-        player.ownedCells.add(targetKey);
-        selectCell(to);
-
-    } else if (oldOwnerIdx !== currentPlayerIndex) {
-        const chance = getCaptureChance(fromPower - targetPower);
+        pl.ownedCells.add(key);
+    }
+    else if (oldIdx !== currentPlayerIndex) {
+        const chance = getCaptureChance(fromPower - toPower);
         if (Math.random() < chance) {
-            players[oldOwnerIdx].ownedCells.delete(targetKey);
+            players[oldIdx].ownedCells.delete(key);
             to.setOwner(currentPlayerIndex);
-            to.setPower(Math.max(fromPower - targetPower, 1));
+            to.setPower(Math.max(fromPower - toPower, 1));
             from.setPower(1);
-            player.ownedCells.add(targetKey);
-            if (players[oldOwnerIdx].ownedCells.size === 0) {
-                eliminatePlayer(oldOwner);
+            pl.ownedCells.add(key);
+
+            if (players[oldIdx].ownedCells.size === 0) {
+                eliminatePlayer(oldIdx);
             }
-            selectCell(to);
-        } else {
+        }
+        else {
             from.setPower(1);
-            to.setPower(Math.max(targetPower - fromPower, 1));
+            to.setPower(Math.max(toPower - fromPower, 1));
         }
     }
+
+    if (to.ownerIndex === currentPlayerIndex) selectCell(to);
 }
 
-function getCaptureChance(diff) {
-    if (diff <= -2) return 0;
-    if (diff === -1) return 0.25;
-    if (diff ===  0) return 0.5;
-    if (diff ===  1) return 0.75;
+function getCaptureChance(d) {
+    if (d <= -2) return 0;
+    else if (d === -1) return 0.25;
+    else if (d ===  0) return 0.5;
+    else if (d ===  1) return 0.75;
+
     return 1;
 }
 
 function upgradeCell(cell) {
-    const player   = players[currentPlayerIndex];
-    const maxPower = cell.sizeType === "big" ? 12 : 8;
-    if (player.influencePoints > 0 && cell.power < maxPower) {
-        cell.setPower(cell.power + 1)
-        player.influencePoints--;
-        pointsDisplay.textContent = player.influencePoints;
+    const pl   = players[currentPlayerIndex];
+    const maxP = cell.sizeType === 'big' ? 12 : 8;
+    if (pl.influencePoints > 0 && cell.power < maxP) {
+        cell.setPower(cell.power + 1);
+        pl.influencePoints--;
+        powerPointsLabel.setText(pl.influencePoints);
     }
 }
 
 function autoUpgrade() {
-    const player = players[currentPlayerIndex];
-    while (player.influencePoints > 0) {
-        const upgradable = [...player.ownedCells]
-            .map(key => cubeMap.get(key))
-            .filter(c => c.power < (c.sizeType === "big" ? 12 : 8));
-        if (upgradable.length === 0) break;
-        const choice = upgradable[Math.floor(Math.random() * upgradable.length)];
-        upgradeCell(choice);
+    const pl = players[currentPlayerIndex];
+    while (pl.influencePoints > 0) {
+        const upg = [...pl.ownedCells]
+            .map(k => cubeMap.get(k))
+            .filter(c => c.power < (c.sizeType === 'big' ? 12 : 8));
+        if (!upg.length) break;
+        upgradeCell(upg[Math.floor(Math.random() * upg.length)]);
     }
 }
 
 function switchPhase() {
-    const player = players[currentPlayerIndex];
+    const pl = players[currentPlayerIndex];
+
     if (capturePhase) {
         capturePhase = false;
-        player.influencePoints += player.ownedCells.size;
-        pointsDisplay.textContent = player.influencePoints;
-        autoUpgradeButton.style.display = "inline-block";
-        phaseButton.textContent        = "Передать ход";
+        pl.influencePoints += pl.ownedCells.size;
+        powerPointsLabel.setText(pl.influencePoints);
+        autoUpgradeButton.show();
+        switchPhaseButton.setText('Передать ход');
     } else {
         capturePhase = true;
-        autoUpgradeButton.style.display = "none";
+        autoUpgradeButton.hide();
         nextPlayer();
-        phaseButton.textContent = "Перейти к фазе прокачки";
+        switchPhaseButton.setText('Перейти к фазе прокачки');
     }
 
     if (selectedCell) {
@@ -245,24 +246,20 @@ function nextPlayer() {
     updateCurrentPlayerDisplay();
 }
 
-function eliminatePlayer(playerToRemove) {
-    const idx = players.indexOf(playerToRemove);
-    if (idx === -1) return;
-
+function eliminatePlayer(idx) {
     players.splice(idx, 1);
-    if (players.length === 0) {
-        alert("Никто не победил.");
-        return;
-    }
+
     if (currentPlayerIndex >= idx) {
         currentPlayerIndex = Math.max(0, currentPlayerIndex - 1);
     }
 
     cubeMap.forEach(cell => {
-        if (cell.owner === playerToRemove) {
-            cell.setOwner(null)
+        if (cell.ownerIndex === idx) {
+            cell.clearOwner();
         }
-        cell.updateVisual();
+        else if (cell.ownerIndex > idx) {
+            cell.setOwner(cell.ownerIndex - 1);
+        }
     });
 
     if (players.length === 1) {
@@ -273,13 +270,12 @@ function eliminatePlayer(playerToRemove) {
 }
 
 function updateCurrentPlayerDisplay() {
-    const player = players[currentPlayerIndex];
-    const nameMap = { blue: "СИНИЙ", red: "КРАСНЫЙ", green: "ЗЕЛЁНЫЙ" };
-    currentPlayerDisplay.textContent = nameMap[player.color] || player.color.toUpperCase();
-    currentPlayerDisplay.style.color = player.color;
-}
+    const p = players[currentPlayerIndex];
+    const names = { blue:'СИНИЙ', red:'КРАСНЫЙ', green:'ЗЕЛЁНЫЙ' };
 
-phaseButton.addEventListener("click", switchPhase);
-autoUpgradeButton.addEventListener("click", autoUpgrade);
+    currentPlayerLabel.setText(names[p.color] || p.color.toUpperCase());
+    currentPlayerLabel.setColor(p.color);
+    powerPointsLabel.setText(p.influencePoints);
+}
 
 renderHexGrid(generateField(radius, 0.2));

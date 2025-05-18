@@ -12,7 +12,7 @@
             return;
         }
 
-        fetch('/api/connect', {
+        fetch('/api/lobby/connect', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -40,7 +40,9 @@
                 errorMessage.textContent = '';
                 errorMessage.classList.remove('visible');
                 input.classList.remove('denied');
-                window.location.href = `/lobby.html?sessionId=${data["sessionId"]}`;
+                sessionStorage.setItem('sessionId', data["sessionId"]);
+
+                window.location.href = `/lobby.html?code=${code}`;
             })
             .catch(error => {
                 input.classList.add('denied');

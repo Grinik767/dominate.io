@@ -12,16 +12,27 @@ server.use(express.static(path.join(__dirname, 'public')));
 server.use(middlewares);
 server.use(jsonServer.bodyParser);
 
-server.post('/api/connect', (req, res) => {
+server.post('/api/lobby/connect', (req, res) => {
     const { code } = req.body;
-    const sessions = router.db.get('sessions').value();
-    const session = sessions.find(s => s.code === code);
+    const lobbies = router.db.get('lobbies').value();
+    const session = lobbies.find(s => s.code === code);
 
     if (session) {
         res.json({ sessionId: session.sessionId });
     } else {
-        res.status(404).json({ message: 'Code not found' });
+        res.status(404).json({ message: 'Лобби не найдено' });
     }
+});
+
+
+server.get('/api/lobby', (req, res) => {
+    const { code } = req.query;
+    const lobbyInfo = router.db.get('lobbyInfo').value()
+    res.json(lobbyInfo);
+});
+
+server.post('/api/lobby/create', (req, res) => {
+    res.json('4F1X');
 });
 
 server.use(router);

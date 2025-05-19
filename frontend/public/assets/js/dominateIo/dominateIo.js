@@ -6,41 +6,24 @@ import {Bot} from './Agents/bot.js';
 
 
 import {BoardRenderer} from './View/boardRenderer.js';
-import {UI} from "./View/ui";
+import {UI} from "./View/ui.js";
 
 
 const dominators = [
     // TODO: написать метод получения цвета
-    new Dominator('blue', 'Player1', new Player()),
-    new Dominator('red', 'Bot', new Bot()),
+    new Dominator('blue', 'Player1', new Player(), 0),
+    new Dominator('red', 'Bot', new Bot(), 1),
 ];
 
 const gameLogic = new GameLogic(5, dominators);
-new BoardRenderer(gameLogic.state);
-new UI(gameLogic);
-
-gameLogic.addEventListener('stateChanged', ev => {
-    const state = ev.detail;
-
-    if (state.capturePhase) {
-        phaseBtn.setText('Перейти к фазе прокачки');
-        autoBtn.hide();
-    } else {
-        phaseBtn.setText('Передать ход');
-        autoBtn.show();
-    }
-
-    let currentDominator = state.dominators[state.currentDominatorIndex];
-
-    currentPlayerLabel.setText(currentDominator.name);
-    currentPlayerLabel.setColor(currentDominator.color);
-    pointsLabel.setText(currentDominator.influencePoints);
-});
-
+const borderRenderer = new BoardRenderer(gameLogic.state, gameLogic.onCellClick.bind(gameLogic));
+const ui = new UI(gameLogic);
 
 (async function mainLoop() {
     while (!gameLogic.isOver()) {
-        const move = await gameLogic.currentDominator.agent.getMove(gameLogic.getState());
+        const move = await gameLogic.currentDominator.agent.getMove(gameLogic.state);
         gameLogic.makeMove(move);
+        borderRenderer.update(gameLogic.state, gameLogic.selected);
+        ui.update(gameLogic);
     }
 })();

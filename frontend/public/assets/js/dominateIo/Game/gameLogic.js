@@ -1,7 +1,8 @@
 import {GameState} from "./gameState.js";
 import {Cell} from "./cell.js";
 import {directions, DEFAULT_SIZE, BIG_SIZE} from "../globals.js";
-import {Player} from "../Agents/player";
+import {Player} from "../Agents/player.js";
+import {Move} from "./move.js";
 
 export class GameLogic extends EventTarget {
     constructor(radius, dominators) {
@@ -57,8 +58,10 @@ export class GameLogic extends EventTarget {
 
         // TODO: ??? Что это вообще здесь делает ???
         if (this.selected) {
-            const sel = this.cells.find(c => c.q === this.selected.q && c.r === this.selected.r);
-            if (!sel || sel.power <= 1) this.selected = null;
+            const sel = this.state.cells.find(c => c.q === this.selected.q && c.r === this.selected.r);
+            if (!sel || sel.power <= 1) {
+                this.selected = null;
+            }
         }
 
         if (this.isOver()) {
@@ -74,7 +77,7 @@ export class GameLogic extends EventTarget {
          * @param {ViewCell} cell - Ячейка, на которую кликнули
          */
         // Если текущий доминтор не игрок(бот или сетевой игрок), ничего не делаем
-        if (!this.state.currentDominator instanceof Player) {
+        if (!(this.state.currentDominator.agent instanceof Player)) {
             return;
         }
         const dominator = this.state.currentDominator;
@@ -82,16 +85,17 @@ export class GameLogic extends EventTarget {
 
         if (this.state.capturePhase) {
             if (dominator.ownedCells.has(key)) {
-                dominator.agent.submitMove({type: 'select', q: viewCell.q, r: viewCell.r});
+                dominator.agent.submitMove(new Move('select', {q: viewCell.q, r: viewCell.r}));
             } else if (this.selected) {
-                dominator.agent.submitMove({
-                    type: 'capture',
-                    from: {...this.selected},
-                    to: {q: viewCell.q, r: viewCell.r}
-                });
+                dominator.agent.submitMove(new Move(
+                    'capture',
+                    {
+                        from: this.selected,
+                        to: {q: viewCell.q, r: viewCell.r}
+                    }));
             }
         } else if (dominator.ownedCells.has(key)) {
-            dominator.agent.submitMove({type: 'upgrade', q: viewCell.q, r: viewCell.r});
+            dominator.agent.submitMove(new Move('upgrade', {q: viewCell.q, r: viewCell.r}));
         }
     }
 
@@ -117,12 +121,12 @@ export class GameLogic extends EventTarget {
         /**
          * Метод расположения начальных позиций игроков
          */
-        this.dominators.forEach((dominator, idx) => {
+        this.state.dominators.forEach((dominator, idx) => {
             let cell;
             do {
-                cell = this.cells[Math.floor(Math.random() * this.cells.length)];
+                cell = this.state.cells[Math.floor(Math.random() * this.state.cells.length)];
             } while (cell.ownerIndex != null);
-            cell.ownerIndex = idx;
+            cell.owner = dominator;
             cell.power = 2;
             dominator.ownedCells.add(`${cell.q},${cell.r}`);
         });
@@ -134,11 +138,11 @@ export class GameLogic extends EventTarget {
          * @param {number} q Первая координата
          * @param {number} e Вторая координата
          */
-        if (!this.capturePhase)
+        if (!this.state.capturePhase)
             return;
         const key = `${q},${r}`;
-        const cell = this.cells.find(c => c.q === q && c.r === r);
-        if (cell && cell.power > 1 && this.currentDominator.ownedCells.has(key)) {
+        const cell = this.state.cells.find(c => c.q === q && c.r === r);
+        if (cell && cell.power > 1 && this.state.currentDominator.ownedCells.has(key)) {
             this.selected = {q, r};
         }
     }
@@ -157,12 +161,12 @@ export class GameLogic extends EventTarget {
         if (!this.canCapture(ceilFrom, ceilTo)) return;
 
         const key = `${to.q},${to.r}`;
-        const old = ceilTo.ownerIndex;
+        const old = ceilTo.owner;
 
         if (old == null) {
             ceilTo.power = ceilFrom.power - 1;
             ceilFrom.power = 1;
-            ceilTo.ownerIndex = this.state.currentDominatorIndex;
+            ceilTo.owner = this.state.currentDominator;
 
             this.currentDominator.ownedCells.add(key);
             this.selected = {q: to.q, r: to.r};
@@ -173,7 +177,7 @@ export class GameLogic extends EventTarget {
             const chance = this._getCaptureChance(ceilFrom.power - ceilTo.power);
             if (Math.random() < chance) {
                 this.state.dominators[old].ownedCells.delete(key);
-                ceilTo.ownerIndex = this.state.currentDominatorIndex;
+                ceilTo.owner = this.state.currentDominator;
                 ceilTo.power = Math.max(ceilFrom.power - ceilTo.power, 1);
                 ceilFrom.power = 1;
                 this.currentDominator.ownedCells.add(key);
@@ -196,41 +200,41 @@ export class GameLogic extends EventTarget {
          * @param {number} q Первая координата
          * @param {number} e Вторая координата
          */
-        if (this.capturePhase)
-            return;
+        if (this.state.capturePhase)
+            return false;
 
-        const cell = this.cells.find(c => c.q === q && c.r === r);
+        const cell = this.state.cells.find(c => c.q === q && c.r === r);
         if (!cell)
-            return;
+            return false;
 
         const key = `${q},${r}`;
-        const dominator = this.currentDominator;
+        const dominator = this.state.currentDominator;
         if (dominator.ownedCells.has(key) && dominator.influencePoints > 0 && cell.power < cell.size) {
             cell.power++;
             dominator.influencePoints--;
         }
+        return true;
     }
 
-    autoUpgrade() {
+    async autoUpgrade() {
         /**
          * Случайно распределяет очки influencePoints для текущего игрока
          */
-        const pl = this.currentDominator;
-        while (pl.influencePoints > 0) {
+        const dominator = this.state.currentDominator;
+        while (dominator.influencePoints > 0) {
             const upg = [];
             // TODO: Почему upg каждый раз пересчитывается?
             // TODO: добавить просто вызов метода update
-            for (const key of pl.ownedCells) {
+            for (const key of dominator.ownedCells) {
                 const [q, r] = key.split(',').map(Number);
-                const c = this.cells.find(c => c.q === q && c.r === r);
-                // TODO: Поменять на int
-                const maxP = c.size === 'big' ? 12 : 8;
+                const c = this.state.cells.find(c => c.q === q && c.r === r);
+                const maxP = c.size;
                 if (c.power < maxP) upg.push(c);
             }
             if (!upg.length) break;
             const c = upg[Math.floor(Math.random() * upg.length)];
-            c.power++;
-            pl.influencePoints--;
+            // this._tryUpgrade(c.q, c.r);
+            dominator.agent.submitMove(new Move('upgrade', {q: c.q, r: c.r}));
         }
     }
 
@@ -238,12 +242,12 @@ export class GameLogic extends EventTarget {
         /**
          * Выполняет логику окончания разных фаз
          */
-        if (this.capturePhase) {
-            this.currentDominator.influencePoints += this.currentDominator.ownedCells.size;
+        if (this.state.capturePhase) {
+            this.state.currentDominator.influencePoints += this.state.currentDominator.ownedCells.size;
         } else {
-            this.currentDominatorIndex = (this.currentDominatorIndex + 1) % this.dominators.length;
+            this.state.currentDominatorIndex = (this.state.currentDominatorIndex + 1) % this.state.dominators.length;
         }
-        this.capturePhase = !this.capturePhase;
+        this.state.capturePhase = !this.state.capturePhase;
         this.selected = null;
     }
 

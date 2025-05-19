@@ -9,13 +9,29 @@ export class UI {
 
         this.autoBtn.hide();
 
-        this.phaseBtn.onClick(() =>
-            gameLogic.currentDominator.agent.submitMove({type: 'endPhase'})
-        );
+        this.phaseBtn.onClick(() => {
+            gameLogic.currentDominator.agent.submitMove({type: 'endPhase'});
+        });
 
-        this.autoBtn.onClick(gameLogic.autoUpgrade);
+        this.autoBtn.onClick(gameLogic.autoUpgrade.bind(gameLogic));
 
         gameLogic.addEventListener('gameOver', ev => this.showWinner(ev.detail.winner));
+
+        this.update(gameLogic);
+    }
+
+    update(gameLogic) {
+        if (gameLogic.state.capturePhase) {
+            this.phaseBtn.setText('Перейти к фазе прокачки');
+            this.autoBtn.hide();
+        } else {
+            this.phaseBtn.setText('Передать ход');
+            this.autoBtn.show();
+        }
+
+        this.currentPlayerLabel.setText(gameLogic.state.currentDominator.name);
+        this.currentPlayerLabel.setColor(gameLogic.state.currentDominator.color);
+        this.pointsLabel.setText(gameLogic.state.currentDominator.influencePoints);
     }
 
     showWinner(winner) {

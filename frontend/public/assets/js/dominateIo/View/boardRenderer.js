@@ -1,5 +1,5 @@
 import {ViewCell} from './viewCell.js';
-import {GameBoard} from "./components";
+import {GameBoard} from "./components.js";
 import {directions} from "../globals.js";
 
 const hexWidth = 50;
@@ -14,6 +14,7 @@ export class BoardRenderer {
         this.board = new GameBoard('dominateIo-container');
         this.hexMap = new Map();
         this._buildGrid(gameState, onCellClick);
+        this.update(gameState);
     }
 
     _buildGrid(state, onCellClick) {
@@ -39,23 +40,24 @@ export class BoardRenderer {
         });
     }
 
-    update(state) {
+    update(state, selected) {
+        console.log('called');
         this.hexMap.forEach(c => {
             c.deselect();
             c.clearHighlight();
             c.updateVisual();
         });
 
-        if (state.capturePhase && state.selected) {
+        if (state.capturePhase && selected) {
             window.requestAnimationFrame(() => {
-                const selKey = `${state.selected.q},${state.selected.r}`;
+                const selKey = `${selected.q},${selected.r}`;
                 const selCell = this.hexMap.get(selKey);
                 if (selCell) {
                     selCell.select();
                 }
 
                 directions.forEach(d => {
-                    const neighbourKey = `${state.selected.q + d.q},${state.selected.r + d.r}`;
+                    const neighbourKey = `${selected.q + d.q},${selected.r + d.r}`;
                     const neighbourViewCell = this.hexMap.get(neighbourKey);
                     const currentDominator = state.dominators[state.currentDominatorIndex];
                     if (neighbourViewCell && !currentDominator.ownedCells.has(neighbourKey)) {

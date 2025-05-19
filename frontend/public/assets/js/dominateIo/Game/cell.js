@@ -5,7 +5,7 @@
         this.s = s;
         this.size = size;
 
-        this.ownedIndex = null;
+        this.owner = null;
         this.power = 0;
     }
 }

@@ -1,4 +1,5 @@
 ﻿import {Agent} from "./agent.js";
+import {Move} from "../Game/move.js";
 
 const dirs = [
     {q: +1, r: -1}, {q: +1, r: 0}, {q: 0, r: +1},
@@ -27,27 +28,27 @@ export class Bot extends Agent {
                         const nq = cell.q + d.q, nr = cell.r + d.r;
                         const neigh = state.cells.find(c => c.q === nq && c.r === nr);
                         if (neigh && neigh.ownerIndex !== state.currentDominatorIndex) {
-                            return {
-                                type: 'capture',
-                                from: {q: cell.q, r: cell.r},
-                                to: {q: nq, r: nr}
-                            };
+                            return new Move(
+                                'capture', {
+                                    from: {q: cell.q, r: cell.r},
+                                    to: {q: nq, r: nr}
+                                });
                         }
                     }
                 }
             }
             // если атаковать некуда — заканчиваем фазу
-            return {type: 'endPhase'};
+            return new Move('endPhase');
 
         } else {
             // фаза прокачки: пока есть очки, просто апгрейдим первую свою
             const owned = [...currentDominator.ownedCells];
             if (currentDominator.influencePoints > 0 && owned.length) {
                 const [q, r] = owned[0].split(',').map(Number);
-                return {type: 'upgrade', q, r};
+                return new Move('upgrade', {q, r});
             }
             // иначе передаём ход
-            return {type: 'endPhase'};
+            return new Move('endPhase');
         }
     }
 }

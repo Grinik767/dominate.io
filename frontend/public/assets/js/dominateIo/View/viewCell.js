@@ -1,17 +1,22 @@
+import {BIG_SIZE} from "../globals.js";
+
 export class ViewCell {
     constructor(cell, hSpacing, vSpacing, cx, cy, omClick) {
         this.cell = cell;
 
-        const x = (this.q + this.r/2)*hSpacing + cx;
-        const y = this.r*vSpacing + cy;
+        const x = (cell.q + cell.r/2)*hSpacing + cx;
+        const y = cell.r*vSpacing + cy;
 
         this.wrapper = document.createElement('div');
-        this.wrapper.className = `hex-wrapper hex-${this.sizeType}`;
+
+        let sizeType = cell.size === BIG_SIZE? 'big' : 'small';
+
+        this.wrapper.className = `hex-wrapper hex-${sizeType}`;
         this.wrapper.style.left = x + 'px';
         this.wrapper.style.top  = y + 'px';
 
         this.el = document.createElement('div');
-        this.el.className = `hex-cell hex-${this.sizeType}`;
+        this.el.className = `hex-cell hex-${sizeType}`;
         this.wrapper.appendChild(this.el);
 
         this.el.addEventListener('click', ()=> {
@@ -30,12 +35,13 @@ export class ViewCell {
         /**
          * Обновляем клетку в html
          */
-        this.el.textContent   = this.cell.power;
+        this.el.textContent = this.cell.power;
 
-        if (this.cell.ownerIndex != null) {
-            this.el.dataset.owner = this.ownerIndex;
-            this.el.style.background = this.players[this.ownerIndex].color;
+        if (this.cell.owner) {
+            this.el.dataset.owner = this.cell.owner.index;
+            this.el.style.background = this.cell.owner.color;
         } else {
+            // TODO: Кажется data-owner не нужен уже
             this.el.removeAttribute('data-owner');
             this.el.style.background = '#111';
         }

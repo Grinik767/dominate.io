@@ -1,37 +1,23 @@
-import {GameLogic} from './gameLogic.js';
-import {Dominator} from './dominator.js';
+import {GameLogic} from './Game/gameLogic.js';
+import {Dominator} from './Game/dominator.js';
 
 import {Player} from './Agents/player.js';
+import {Bot} from './Agents/bot.js';
 
-import {Button, Display, GameBoard} from './ui.js';
-import {BoardRenderer} from './boardRenderer.js';
 
-const board = new GameBoard('dominateIo-container');
-const phaseBtn = new Button('phase-button');
-const autoBtn = new Button('auto-upgrade');
-const pointsLabel = new Display('points');
-const currentPlayerLabel = new Display('player-color-name');
+import {BoardRenderer} from './View/boardRenderer.js';
+import {UI} from "./View/ui";
 
 
 const dominators = [
     // TODO: написать метод получения цвета
     new Dominator('blue', 'Player1', new Player()),
-    new Dominator('red', 'Player2', new Player()),
-    new Dominator('green','Player3', new Player())
+    new Dominator('red', 'Bot', new Bot()),
 ];
 
 const gameLogic = new GameLogic(5, dominators);
-new BoardRenderer(gameLogic, board);
-
-autoBtn.hide();
-
-phaseBtn.onClick(() =>
-    gameLogic.currentDominator.agent.submitMove({type: 'endPhase'})
-);
-
-autoBtn.onClick(() =>
-    gameLogic.makeMove({type: 'autoUpgrade'})
-);
+new BoardRenderer(gameLogic.state);
+new UI(gameLogic);
 
 gameLogic.addEventListener('stateChanged', ev => {
     const state = ev.detail;
@@ -51,49 +37,10 @@ gameLogic.addEventListener('stateChanged', ev => {
     pointsLabel.setText(currentDominator.influencePoints);
 });
 
-// dominateIo.addEventListener('playerEliminated', ev => {
-//     strategies.splice(ev.detail.index, 1);
-// });
-
-gameLogic.addEventListener('gameOver', ev => {
-    alert(`Победил игрок: ${ev.detail.winner.toUpperCase()}!`);
-});
-
-gameLogic._emitState();
-
-export function onCellClick(cell) {
-    /**
-     * Обработчик события нажатия на хекс.
-     * @param {HexCell} cell - Ячейка, на которую кликнули
-     */
-    let state = gameLogic.getState();
-
-    const dominator = state.dominators[state.currentDominatorIndex];
-    // Если текущий доминтор не игрок(бот или сетевой игрок), ничего не делаем
-    if (!dominator instanceof Player) {
-        return;
-    }
-
-    const key = `${cell.q},${cell.r}`;
-
-    if (state.capturePhase) {
-        if (dominator.ownedCells.has(key)) {
-            dominator.agent.submitMove({type: 'select', q: cell.q, r: cell.r});
-        } else if (state.selected) {
-            dominator.agent.submitMove({
-                type: 'capture',
-                from: {...state.selected},
-                to: {q: cell.q, r: cell.r}
-            });
-        }
-    } else if (dominator.ownedCells.has(key)) {
-        dominator.agent.submitMove({type: 'upgrade', q: cell.q, r: cell.r});
-    }
-}
 
 (async function mainLoop() {
     while (!gameLogic.isOver()) {
-        const move = await gameLogic.currentDominator.agent.getMove();
+        const move = await gameLogic.currentDominator.agent.getMove(gameLogic.getState());
         gameLogic.makeMove(move);
     }
 })();

@@ -13,7 +13,7 @@ export class Player extends Agent {
      * Called by the dominateIo loop. Returns a promise that resolves when the player makes a move.
      * @returns {Promise<Object>} The move selected by the player.
      */
-    async getMove() {
+    async getMove(state) {
         return new Promise((resolve) => {
             this._resolveMove = resolve;
         });

@@ -1,4 +1,4 @@
-﻿import {Agent} from "./agent";
+﻿import {Agent} from "./agent.js";
 
 /**
  * Represents a human player agent who makes moves via the UI.

@@ -21,12 +21,12 @@ const dominators = [
 ];
 
 const gameLogic = new GameLogic(5, dominators);
-const renderer = new BoardRenderer(gameLogic, board);
+new BoardRenderer(gameLogic, board);
 
 autoBtn.hide();
 
 phaseBtn.onClick(() =>
-    gameLogic.currentDominator.strategy.submitMove({type: 'endPhase'})
+    gameLogic.currentDominator.agent.submitMove({type: 'endPhase'})
 );
 
 autoBtn.onClick(() =>
@@ -44,9 +44,11 @@ gameLogic.addEventListener('stateChanged', ev => {
         autoBtn.show();
     }
 
-    currentPlayerLabel.setText(state.currentDominator.name);
-    currentPlayerLabel.setColor(state.currentDominator.color);
-    pointsLabel.setText(state.currentDominator.influencePoints);
+    let currentDominator = state.dominators[state.currentDominatorIndex];
+
+    currentPlayerLabel.setText(currentDominator.name);
+    currentPlayerLabel.setColor(currentDominator.color);
+    pointsLabel.setText(currentDominator.influencePoints);
 });
 
 // dominateIo.addEventListener('playerEliminated', ev => {
@@ -66,7 +68,7 @@ export function onCellClick(cell) {
      */
     let state = gameLogic.getState();
 
-    const dominator = state.dominators[state.currentDominator];
+    const dominator = state.dominators[state.currentDominatorIndex];
     // Если текущий доминтор не игрок(бот или сетевой игрок), ничего не делаем
     if (!dominator instanceof Player) {
         return;
@@ -91,8 +93,7 @@ export function onCellClick(cell) {
 
 (async function mainLoop() {
     while (!gameLogic.isOver()) {
-        const dominator = dominators[gameLogic.currentDominator];
-        const move = await dominator.agent.getMove();
+        const move = await gameLogic.currentDominator.agent.getMove();
         gameLogic.makeMove(move);
     }
 })();

@@ -69,7 +69,9 @@ export class GameLogic extends EventTarget {
             dominators: this.dominators.map(p => ({
                 color: p.color,
                 influencePoints: p.influencePoints,
-                ownedCells: new Set(p.ownedCells)
+                ownedCells: new Set(p.ownedCells),
+                agent: p.agent,
+                name: p.name,
             })),
             currentDominatorIndex: this.currentDominatorIndex,
             capturePhase: this.capturePhase,
@@ -97,7 +99,7 @@ export class GameLogic extends EventTarget {
         ];
         const dq = to.q - from.q, dr = to.r - from.r;
         if (!dirs.some(d => d.q === dq && d.r === dr)) return false;
-        const pl = this.dominators[this.currentDominator];
+        const pl = this.currentDominator;
         return from.power > 1 && !pl.ownedCells.has(`${to.q},${to.r}`);
     }
 
@@ -143,7 +145,7 @@ export class GameLogic extends EventTarget {
          */
         if (!this.capturePhase) return;
         const key = `${q},${r}`;
-        const pl = this.dominators[this.currentDominator];
+        const pl = this.currentDominator;
         const cell = this.cells.find(c => c.q === q && c.r === r);
         if (cell && cell.power > 1 && pl.ownedCells.has(key)) {
             this.selected = {q, r};
@@ -163,7 +165,7 @@ export class GameLogic extends EventTarget {
         // Кажется ещё лучше добавить проверку на мощность.
         if (!this.canCapture(cf, ct)) return;
 
-        const pl = this.dominators[this.currentDominator];
+        const pl = this.currentDominator;
         const key = `${to.q},${to.r}`;
         const old = ct.ownerIndex;
 
@@ -171,18 +173,18 @@ export class GameLogic extends EventTarget {
             // Кажется логику с игроком надо перенести в его класс
             ct.power = cf.power - 1;
             cf.power = 1;
-            ct.ownerIndex = this.currentDominator;
+            ct.ownerIndex = this.currentDominatorIndex;
             pl.ownedCells.add(key);
             this.selected = {q: to.q, r: to.r};
             return;
         }
 
-        if (old !== this.currentDominator) {
+        if (old !== this.currentDominatorIndex) {
             const chance = this._getCaptureChance(cf.power - ct.power);
             if (Math.random() < chance) {
                 // Кажется логику с игроком надо перенести в его класс
                 this.dominators[old].ownedCells.delete(key);
-                ct.ownerIndex = this.currentDominator;
+                ct.ownerIndex = this.currentDominatorIndex;
                 ct.power = Math.max(cf.power - ct.power, 1);
                 cf.power = 1;
                 pl.ownedCells.add(key);
@@ -210,7 +212,7 @@ export class GameLogic extends EventTarget {
         const cell = this.cells.find(c => c.q === q && c.r === r);
         if (!cell) return;
 
-        const pl = this.dominators[this.currentDominator];
+        const pl = this.currentDominator;
         const key = `${q},${r}`;
         const maxP = cell.size === 'big' ? 12 : 8;
         if (pl.ownedCells.has(key) && pl.influencePoints > 0 && cell.power < maxP) {
@@ -223,7 +225,7 @@ export class GameLogic extends EventTarget {
         /**
          * Случайно распределяет очки influencePoints для текущего игрока
          */
-        const pl = this.dominators[this.currentDominator];
+        const pl = this.currentDominator;
         while (pl.influencePoints > 0) {
             const upg = [];
             // TODO: Почему upg каждый раз пересчитывается?
@@ -247,10 +249,9 @@ export class GameLogic extends EventTarget {
          * Выполняет логику окончания разных фаз
          */
         if (this.capturePhase) {
-            this.dominators[this.currentDominator]
-                .influencePoints += this.dominators[this.currentDominator].ownedCells.size;
+            this.currentDominator.influencePoints += this.currentDominator.ownedCells.size;
         } else {
-            this.currentDominatorIndex = (this.currentDominator + 1) % this.dominators.length;
+            this.currentDominatorIndex = (this.currentDominatorIndex + 1) % this.dominators.length;
         }
         this.capturePhase = !this.capturePhase;
         this.selected = null;

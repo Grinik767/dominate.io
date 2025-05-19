@@ -1,5 +1,5 @@
 import { HexCell } from './hexCell.js';
-import { onCellClick } from './gameLogic';
+import { onCellClick } from './dominateIo.js';
 
 const hexWidth  = 50;
 const hexHeight = 58;
@@ -48,7 +48,7 @@ export class BoardRenderer {
 
         this.board.setSize(totalW, totalH);
 
-        const palette = state.players.map(p => ({ color: p.color }));
+        const palette = state.dominators.map(p => ({ color: p.color }));
 
         state.cells.forEach(cdata => {
             const cell = new HexCell(cdata, palette, hSpacing, vSpacing, cx, cy);
@@ -67,7 +67,7 @@ export class BoardRenderer {
             cell.setOwner(cdata.ownerIndex);
 
             if (cdata.ownerIndex != null) {
-                cell.el.style.background = state.players[cdata.ownerIndex].color;
+                cell.el.style.background = state.dominators[cdata.ownerIndex].color;
             } else {
                 cell.el.style.background = '#111';
             }
@@ -87,7 +87,8 @@ export class BoardRenderer {
                 dirs.forEach(d => {
                     const nk = `${state.selected.q + d.q},${state.selected.r + d.r}`;
                     const nb = this.hexMap.get(nk);
-                    if (nb && !state.players[state.currentPlayer].ownedCells.has(nk)) {
+                    const currentDominator = state.dominators[state.currentDominatorIndex];
+                    if (nb && !currentDominator.ownedCells.has(nk)) {
                         nb.highlight();
                     }
                 });

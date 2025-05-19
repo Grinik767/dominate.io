@@ -23,12 +23,6 @@
     white-space: nowrap;
 }
 
-.box {
-    background-color: #373737;
-    padding: 15px;
-    border: 1px solid #444;
-    margin: 20px;
-}
 
 .serverStatus{
     margin-top: 0;

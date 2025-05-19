@@ -3,6 +3,12 @@
     --background-color: #1e1e1e;
     --gray-color: #5b5b5b;
     --green-color: #c2fe0c;
+    --red-color: red;
+    --orange-color: orange;
+
+    --green-gray-color: #87b108;
+    --red-gray-color: #b20000;
+
 }
 
 body,html {
@@ -12,6 +18,11 @@ body,html {
 * {
     box-sizing: border-box;
 }
+
+h1 {
+    color: white;
+}
+
 
 body {
     font-family: Inter, sans-serif;
@@ -31,13 +42,12 @@ p {
 .inp, .btn {
     box-sizing: border-box;
     font-size: 16px;
-    line-height: 1;
     text-align: left;
     font-family: Inter, sans-serif;
     font-weight: bold;
     color: var(--text-color);
 
-    width: 100%;
+
     height: 30px;
     padding: 4px 10px;
     margin: 4px;
@@ -92,3 +102,21 @@ p {
     display: flex;
     justify-content: center;
 }
+
+.right {
+    display: flex;
+    justify-content: right;
+}
+
+.box {
+    background-color: #373737;
+    padding: 15px;
+    border: 1px solid #444;
+    margin: 20px;
+}
+
+
+
+
+
+

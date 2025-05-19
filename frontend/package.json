@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "express": "^5.1.0",
-    "json-server": "^0.17.4"
+    "json-server": "^0.17.4",
+    "ws": "^8.18.2"
   }
 }

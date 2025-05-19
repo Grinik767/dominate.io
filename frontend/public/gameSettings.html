@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>dominate.io</title>
+    <!--  icon  -->
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
+
+    <!--  styles  -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/pages.css">
+    <link rel="stylesheet" href="assets/css/gameSettings.css">
+
+    <!-- fonts   -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+          rel="stylesheet">
+</head>
+<body>
+<div class="pageContainer">
+    <div class="pageHeader">
+        <h1>НАСТРОЙКА ИГРЫ</h1>
+    </div>
+    <div class="pageBody">
+        <div class="settingsContainer">
+            <div class="leftContainer">
+                <button class="btn mode-btn" data-mode="local">ЛОКАЛКА</button>
+                <button class="btn mode-btn" data-mode="ai">ПРОТИВ ИИ</button>
+            </div>
+            <div class="rightContainer">
+                <div class="box">
+                    <div class="settingsContent selected" id="settings-local">
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td class="key">Количество игроков</td>
+                                <td>
+                                    <div class="valueContainer">
+                                        <button class="btn-small plus" onclick="changeCount(1, 'playerCount')">+</button>
+                                        <span class="value" id="playerCount">2</span>
+                                        <button class="btn-small minus" onclick="changeCount(-1, 'playerCount')">-</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="settingsContent" id="settings-ai">
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td class="key">Сложность бота</td>
+                                <td>
+                                    <div class="valueContainer">
+                                        <span class="value" id="botsLevel">Средний</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="key">Количество бота</td>
+                                <td>
+                                    <div class="valueContainer">
+                                        <button class="btn-small plus" onclick="changeCount(1, 'botsCount')">+</button>
+                                        <span class="value" id="botsCount">1</span>
+                                        <button class="btn-small minus" onclick="changeCount(-1, 'botsCount')">-</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="right">
+                    <button class="btn">НАЧАТЬ ИГРУ</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="assets/js/gameSettings.js"></script>
+</body>
+</html>

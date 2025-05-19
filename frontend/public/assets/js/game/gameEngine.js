@@ -19,7 +19,9 @@ export class Game extends EventTarget {
             ) {
                 if (Math.random() < 0.2) continue;
                 out.push({
-                    q, r, s: -q - r,
+                    q,
+                    r,
+                    s: -q - r,
                     power: 0,
                     ownerIndex: null,
                     size: Math.random() < 0.2 ? 'big' : 'small'
@@ -120,6 +122,7 @@ export class Game extends EventTarget {
         const pl  = this.players[this.currentPlayer];
         const key = `${to.q},${to.r}`;
         const old = ct.ownerIndex;
+
 
         if (old != null && ct.power === 0) {
             this.players[old].ownedCells.delete(key);

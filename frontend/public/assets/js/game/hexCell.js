@@ -1,4 +1,3 @@
-// hexCell.js
 export class HexCell {
     constructor(data, players, hSpacing, vSpacing, cx, cy) {
         this.q          = data.q;

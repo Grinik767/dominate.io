@@ -24,46 +24,39 @@
     </div>
     <div class="pageBody">
         <div class="settingsContainer">
-            <div class="leftContainer">
-                <button class="btn mode-btn" data-mode="local">ЛОКАЛКА</button>
-                <button class="btn mode-btn" data-mode="ai">ПРОТИВ ИИ</button>
-            </div>
             <div class="rightContainer">
                 <div class="box">
-                    <div class="settingsContent selected" id="settings-local">
+                    <div class="settingsContent">
                         <table>
                             <tbody>
                             <tr>
                                 <td class="key">Количество игроков</td>
                                 <td>
                                     <div class="valueContainer">
-                                        <button class="btn-small plus" onclick="changeCount(1, 'playerCount')">+</button>
-                                        <span class="value" id="playerCount">2</span>
-                                        <button class="btn-small minus" onclick="changeCount(-1, 'playerCount')">-</button>
+                                        <button class="btn-small plus" onclick="changeCount(1, 'playerCount')">+
+                                        </button>
+                                        <span class="value value-number" id="playerCount">1</span>
+                                        <button class="btn-small minus" onclick="changeCount(-1, 'playerCount')">-
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="settingsContent" id="settings-ai">
-                        <table>
-                            <tbody>
+                            <tr>
+                                <td class="key">Количество ботов</td>
+                                <td>
+                                    <div class="valueContainer">
+                                        <button class="btn-small plus" onclick="changeCount(1, 'botsCount')">+</button>
+                                        <span class="value value-number" id="botsCount">0</span>
+                                        <button class="btn-small minus" onclick="changeCount(-1, 'botsCount')">-
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
                             <tr>
                                 <td class="key">Сложность бота</td>
                                 <td>
                                     <div class="valueContainer">
-                                        <span class="value" id="botsLevel">Средний</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="key">Количество бота</td>
-                                <td>
-                                    <div class="valueContainer">
-                                        <button class="btn-small plus" onclick="changeCount(1, 'botsCount')">+</button>
-                                        <span class="value" id="botsCount">1</span>
-                                        <button class="btn-small minus" onclick="changeCount(-1, 'botsCount')">-</button>
+                                        <span class="value value-level" id="botsLevel">Средний</span>
                                     </div>
                                 </td>
                             </tr>
@@ -72,10 +65,9 @@
                     </div>
                 </div>
                 <div class="right">
-                    <button class="btn">НАЧАТЬ ИГРУ</button>
+                    <button class="btn" id="startGame">НАЧАТЬ ИГРУ</button>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

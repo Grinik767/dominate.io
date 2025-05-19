@@ -1,10 +1,6 @@
 import {Agent} from "./agent.js";
 import {Move} from "../Game/move.js";
-
-const dirs = [
-    {q: +1, r: -1}, {q: +1, r: 0}, {q: 0, r: +1},
-    {q: -1, r: +1}, {q: -1, r: 0}, {q: 0, r: -1}
-];
+import {directions, sleep} from "../globals.js";
 
 export class BasicBot extends Agent {
     constructor() {
@@ -13,7 +9,7 @@ export class BasicBot extends Agent {
 
     getNeighbors(cell, cells) {
         const neighbors = [];
-        for (const d of dirs) {
+        for (const d of directions) {
             const nq = cell.q + d.q, nr = cell.r + d.r;
             const neighbor = cells.find(c => c.q === nq && c.r === nr);
             if (neighbor) neighbors.push(neighbor);
@@ -32,6 +28,7 @@ export class BasicBot extends Agent {
 
     async getMove(state) {
         console.log("getMove")
+        await sleep(300);
         const dominatorIndex = state.currentDominatorIndex;
         const dominator = state.dominators[dominatorIndex];
 

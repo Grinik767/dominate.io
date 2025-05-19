@@ -1,4 +1,5 @@
 ﻿import {Button, Display} from './components.js';
+import {Player} from "../Agents/player.js";
 
 export class UI {
     constructor(gameLogic) {
@@ -32,6 +33,13 @@ export class UI {
         this.currentPlayerLabel.setText(gameLogic.state.currentDominator.name);
         this.currentPlayerLabel.setColor(gameLogic.state.currentDominator.color);
         this.pointsLabel.setText(gameLogic.state.currentDominator.influencePoints);
+
+        if (!(gameLogic.state.currentDominator.agent instanceof Player)) {
+            this.autoBtn.hide();
+            this.phaseBtn.hide();
+        } else {
+            this.phaseBtn.show();
+        }
     }
 
     showWinner(wiener) {

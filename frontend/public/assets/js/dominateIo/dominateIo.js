@@ -22,7 +22,7 @@ for (let i = 0; i < players; i++) {
 }
 
 for (let i = 0; i < bots; i++) {
-    dominators.push(new Dominator(colors[i + players], `Bot ${i}`, new Bot(), i + players));
+    dominators.push(new Dominator(colors[i + players], `Bot ${i}`, new BasicBot(), i + players));
 }
 
 dominators = [...dominators].sort(() => 0.5 - Math.random());

@@ -99,22 +99,63 @@ export class GameLogic extends EventTarget {
     }
 
     _generateField() {
-        /**
-         * Метод генерации поля
-         */
-        const out = [];
+        const allCells = new Map(); // Keyed by 'q,r,s'
         for (let q = -this.radius; q <= this.radius; q++) {
-            for (let r = Math.max(-this.radius, -q - this.radius);
-                 r <= Math.min(this.radius, -q + this.radius);
-                 r++
+            for (
+                let r = Math.max(-this.radius, -q - this.radius);
+                r <= Math.min(this.radius, -q + this.radius);
+                r++
             ) {
-                if (Math.random() < 0.2)
-                    continue;
-                out.push(new Cell(q, r, -q - r, Math.random() < 0.2 ? BIG_SIZE : DEFAULT_SIZE));
+                const s = -q - r;
+                const key = `${q},${r},${s}`;
+                const cell = new Cell(q, r, s, Math.random() < 0.2 ? BIG_SIZE : DEFAULT_SIZE);
+                if (Math.random() >= 0.2) {
+                    allCells.set(key, cell);
+                }
             }
         }
-        return out;
+
+        // Flood fill to find the largest connected group
+        const visited = new Set();
+        let largestGroup = [];
+
+        const directions = [
+            [+1, -1, 0], [-1, +1, 0],
+            [+1, 0, -1], [-1, 0, +1],
+            [0, +1, -1], [0, -1, +1]
+        ];
+
+        for (const [key, startCell] of allCells) {
+            if (visited.has(key)) continue;
+
+            const queue = [startCell];
+            const group = [];
+            visited.add(key);
+
+            while (queue.length > 0) {
+                const current = queue.pop();
+                group.push(current);
+                const neighbors = directions.map(([dq, dr, ds]) => {
+                    const nq = current.q + dq;
+                    const nr = current.r + dr;
+                    const ns = current.s + ds;
+                    return allCells.get(`${nq},${nr},${ns}`);
+                }).filter(n => n && !visited.has(`${n.q},${n.r},${n.s}`));
+
+                for (const neighbor of neighbors) {
+                    visited.add(`${neighbor.q},${neighbor.r},${neighbor.s}`);
+                    queue.push(neighbor);
+                }
+            }
+
+            if (group.length > largestGroup.length) {
+                largestGroup = group;
+            }
+        }
+
+        return largestGroup;
     }
+
 
     _placeStartingCells() {
         /**

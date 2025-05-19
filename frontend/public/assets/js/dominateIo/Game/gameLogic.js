@@ -125,7 +125,7 @@ export class GameLogic extends EventTarget {
             let cell;
             do {
                 cell = this.state.cells[Math.floor(Math.random() * this.state.cells.length)];
-            } while (cell.ownerIndex != null);
+            } while (cell.owner != null);
             cell.owner = dominator;
             cell.power = 2;
             dominator.ownedCells.add(`${cell.q},${cell.r}`);

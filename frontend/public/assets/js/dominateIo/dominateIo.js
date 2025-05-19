@@ -1,5 +1,6 @@
 import {GameLogic} from './Game/gameLogic.js';
 import {Dominator} from './Game/dominator.js';
+import {getRandomColors} from './globals.js';
 
 import {Player} from './Agents/player.js';
 import {Bot} from './Agents/bot.js';
@@ -8,12 +9,23 @@ import {Bot} from './Agents/bot.js';
 import {BoardRenderer} from './View/boardRenderer.js';
 import {UI} from "./View/ui.js";
 
+const params = new URLSearchParams(window.location.search);
+const players = parseInt(params.get('players'), 10);
+const bots = parseInt(params.get('bots'), 10);
+const level = parseInt(params.get('level'), 10);
 
-const dominators = [
-    // TODO: написать метод получения цвета
-    new Dominator('blue', 'Player1', new Player(), 0),
-    new Dominator('red', 'Bot', new Bot(), 1),
-];
+const colors = getRandomColors(players + bots);
+
+let dominators = []
+for (let i = 0; i < players; i++) {
+    dominators.push(new Dominator(colors[i], `Player ${i}`, new Player(), i));
+}
+
+for (let i = 0; i < bots; i++) {
+    dominators.push(new Dominator(colors[i + players], `Bot ${i}`, new Bot(), i + players));
+}
+
+dominators = [...dominators].sort(() => 0.5 - Math.random());
 
 const gameLogic = new GameLogic(5, dominators);
 const borderRenderer = new BoardRenderer(gameLogic.state, gameLogic.onCellClick.bind(gameLogic));

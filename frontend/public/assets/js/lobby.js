@@ -43,28 +43,6 @@ function setUpConnection(sessionId, code) {
 
             renderLobbyUsers(lobbyInfo);
             renderLobbyCode(code);
-
-
-            // const socket = new WebSocket(`wss://yourserver.com/lobby/${sessionId}`);
-            //
-            // socket.addEventListener('open', () => {
-            //     console.log('WebSocket открыт');
-            //     // Identify this client
-            //     // socket.send(JSON.stringify({
-            //     //     type: 'join',
-            //     //     name: playerName
-            //     // }));
-            // });
-            //
-            // socket.addEventListener('message', event => {
-            //     const msg = JSON.parse(event.data);
-            //     console.log('Message from server:', msg);
-            //     // Handle incoming lobby updates (new users, chat, etc.)
-            // });
-            //
-            // socket.addEventListener('close', () => {
-            //     console.log('WebSocket закрыт');
-            // });
         })
         .catch(err => {
             sessionStorage.setItem('errorMsg', err);

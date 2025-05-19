@@ -2,7 +2,7 @@ import {GameLogic} from './Game/gameLogic.js';
 import {Dominator} from './Game/dominator.js';
 
 import {Player} from './Agents/player.js';
-import {BasicBot} from './Agents/bots.js';
+import {BasicBot, AggressiveBot} from './Agents/bots.js';
 
 
 import {BoardRenderer} from './View/boardRenderer.js';
@@ -12,7 +12,8 @@ import {UI} from "./View/ui.js";
 const dominators = [
     // TODO: написать метод получения цвета
     new Dominator('blue', 'Player1', new Player(), 0),
-    new Dominator('red', 'Bot', new BasicBot(), 1),
+    // new Dominator('red', 'Bot', new BasicBot(), 1),
+    new Dominator('purple', 'AggressiveBot', new AggressiveBot(), 1),
 ];
 
 const gameLogic = new GameLogic(5, dominators);

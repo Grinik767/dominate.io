@@ -34,7 +34,7 @@ export class UI {
         this.pointsLabel.setText(gameLogic.state.currentDominator.influencePoints);
     }
 
-    showWinner(winner) {
-        alert(`Победил игрок: ${winner.toUpperCase()}!`);
+    showWinner(wiener) {
+        alert(`Победил игрок: ${wiener.name.toUpperCase()}!`);
     }
 }

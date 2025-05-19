@@ -56,7 +56,6 @@ export class GameLogic extends EventTarget {
                 break;
         }
 
-        // TODO: ??? Что это вообще здесь делает ???
         if (this.selected) {
             const sel = this.state.cells.find(c => c.q === this.selected.q && c.r === this.selected.r);
             if (!sel || sel.power <= 1) {
@@ -66,7 +65,7 @@ export class GameLogic extends EventTarget {
 
         if (this.isOver()) {
             this.dispatchEvent(new CustomEvent('gameOver', {
-                detail: {winner: this.dominators[0]}
+                detail: {winner: this.state.dominators[0]}
             }));
         }
     }
@@ -161,9 +160,8 @@ export class GameLogic extends EventTarget {
         if (!this.canCapture(ceilFrom, ceilTo)) return;
 
         const key = `${to.q},${to.r}`;
-        const old = ceilTo.owner;
 
-        if (old == null) {
+        if (ceilTo.owner === null) {
             ceilTo.power = ceilFrom.power - 1;
             ceilFrom.power = 1;
             ceilTo.owner = this.state.currentDominator;
@@ -173,10 +171,11 @@ export class GameLogic extends EventTarget {
             return;
         }
 
-        if (old !== this.currentDominatorIndex) {
+        const oldIndex = ceilTo.owner.index;
+        if (oldIndex !== this.currentDominatorIndex) {
             const chance = this._getCaptureChance(ceilFrom.power - ceilTo.power);
             if (Math.random() < chance) {
-                this.state.dominators[old].ownedCells.delete(key);
+                this.state.dominators[oldIndex].ownedCells.delete(key);
                 ceilTo.owner = this.state.currentDominator;
                 ceilTo.power = Math.max(ceilFrom.power - ceilTo.power, 1);
                 ceilFrom.power = 1;
@@ -184,8 +183,8 @@ export class GameLogic extends EventTarget {
 
                 this.selected = {q: to.q, r: to.r};
 
-                if (this.dominators[old].ownedCells.size === 0) {
-                    this._eliminate(old);
+                if (this.state.dominators[oldIndex].ownedCells.size === 0) {
+                    this._eliminate(oldIndex);
                 }
             } else {
                 ceilFrom.power = 1;
@@ -272,17 +271,19 @@ export class GameLogic extends EventTarget {
          */
         // TODO: Лучше не удалять игрока, а просто когда будет переход на другого игрока делаться, то проверять, что
         // у игрока есть клетки. Иначе скипать.
-        this.dominators.splice(idx, 1);
-        this.cells.forEach(c => {
-            if (c.ownerIndex === idx) c.ownerIndex = null;
-            else if (c.ownerIndex > idx) c.ownerIndex--;
+        this.state.dominators.splice(idx, 1);
+        this.state.cells.forEach(c => {
+            if (c.owner !== null){
+                if (c.owner.index === idx) c.ownerIndex = null;
+                else if (c.owner.index > idx) c.ownerIndex--;
+            }
         });
         this.dispatchEvent(new CustomEvent('playerEliminated', {
             detail: {index: idx}
         }));
         // После того как обновили индексы, нужно поправить currentPlayer
-        if (this.currentDominator >= idx) {
-            this.currentDominatorIndex = Math.max(0, this.currentDominator - 1);
+        if (this.state.currentDominatorIndex >= idx) {
+            this.state.currentDominatorIndex = Math.max(0, this.state.currentDominatorIndex - 1);
         }
     }
 

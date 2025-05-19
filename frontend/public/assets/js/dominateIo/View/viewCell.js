@@ -37,6 +37,10 @@ export class ViewCell {
          */
         this.el.textContent = this.cell.power;
 
+        this.el.dataset.q = this.cell.q;
+        this.el.dataset.r = this.cell.r;
+        this.el.dataset.s = this.cell.s;
+
         if (this.cell.owner) {
             this.el.dataset.owner = this.cell.owner.index;
             this.el.style.background = this.cell.owner.color;

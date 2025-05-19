@@ -1,4 +1,5 @@
 import { HexCell } from './hexCell.js';
+import { onCellClick } from './gameLogic';
 
 const hexWidth  = 50;
 const hexHeight = 58;
@@ -12,11 +13,10 @@ const dirs = [
     { q:-1, r:+1}, { q:-1, r:0 }, { q:0, r:-1 }
 ];
 
-export class Renderer {
-    constructor(game, boardEl, strategies) {
+export class BoardRenderer {
+    constructor(game, boardEl) {
         this.game       = game;
         this.board      = boardEl;
-        this.strategies = strategies;
         this.hexMap     = new Map();
         this.inited     = false;
 
@@ -52,7 +52,7 @@ export class Renderer {
 
         state.cells.forEach(cdata => {
             const cell = new HexCell(cdata, palette, hSpacing, vSpacing, cx, cy);
-            cell.setClickHandler(hc => this._onCellClick(hc));
+            cell.setClickHandler(hc => onCellClick(hc));
             this.board.append(cell.wrapper);
             this.hexMap.set(`${cdata.q},${cdata.r}`, cell);
         });
@@ -92,35 +92,6 @@ export class Renderer {
                     }
                 });
             });
-        }
-    }
-
-    _onCellClick(cell) {
-        /**
-         * Обработчик события нажатия на хекс.
-         * @param {HexCell} cell - Ячейка, на которую кликнули
-         */
-        const state = this.game.getState();
-        const idx   = state.currentPlayer;
-        // TODO: кажется эта логика должна быть в другом месте. Да и рендерер врядли должен содержать информацию
-        // о стратегиях
-        const strat = this.strategies[idx];
-        const key   = `${cell.q},${cell.r}`;
-
-        if (state.capturePhase) {
-            if (state.players[idx].ownedCells.has(key)) {
-                strat.submitMove({ type:'select', q:cell.q, r:cell.r });
-            }
-            else if (state.selected) {
-                strat.submitMove({
-                    type: 'capture',
-                    from: { ...state.selected },
-                    to:   { q:cell.q, r:cell.r }
-                });
-            }
-        }
-        else if (state.players[idx].ownedCells.has(key)) {
-                strat.submitMove({ type:'upgrade', q:cell.q, r:cell.r });
         }
     }
 }

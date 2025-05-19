@@ -19,7 +19,7 @@ export class Display {
 }
 
 /**
- * Represents a game board container that manages rendering and sizing. One in all game
+ * Represents a dominateIo board container that manages rendering and sizing. One in all dominateIo
  */
 export class GameBoard {
     constructor(id)       { this.container = document.getElementById(id); }

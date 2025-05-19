@@ -1,13 +1,17 @@
-export class Game extends EventTarget {
-    constructor(radius, players) {
+export class GameLogic extends EventTarget {
+    constructor(radius, dominators) {
         super();
         this.radius = radius;
-        this.players = players;
-        this.currentPlayer = 0;
+        this.dominators = dominators;
+        this.currentDominatorIndex = 0;
         this.capturePhase = true;
         this.selected = null;
         this.cells = this._generateField();
         this._placeStartingCells();
+    }
+
+    get currentDominator() {
+        return this.dominators[this.currentDominatorIndex];
     }
 
     _generateField() {
@@ -38,7 +42,7 @@ export class Game extends EventTarget {
         /**
          * Метод расположения начальных позиций игроков
          */
-        this.players.forEach((pl, idx) => {
+        this.dominators.forEach((pl, idx) => {
             let cell;
             do {
                 cell = this.cells[Math.floor(Math.random() * this.cells.length)];
@@ -62,12 +66,12 @@ export class Game extends EventTarget {
          */
         return {
             cells: this.cells.map(c => ({...c})),
-            players: this.players.map(p => ({
+            dominators: this.dominators.map(p => ({
                 color: p.color,
                 influencePoints: p.influencePoints,
                 ownedCells: new Set(p.ownedCells)
             })),
-            currentPlayer: this.currentPlayer,
+            currentDominatorIndex: this.currentDominatorIndex,
             capturePhase: this.capturePhase,
             selected: this.selected ? {...this.selected} : null
         };
@@ -78,7 +82,7 @@ export class Game extends EventTarget {
          * Закончена ли игра?
          * @returns {boolean} — Количество игроков <= 1?
          */
-        return this.players.length <= 1;
+        return this.dominators.length <= 1;
     }
 
     canCapture(from, to) {
@@ -93,7 +97,7 @@ export class Game extends EventTarget {
         ];
         const dq = to.q - from.q, dr = to.r - from.r;
         if (!dirs.some(d => d.q === dq && d.r === dr)) return false;
-        const pl = this.players[this.currentPlayer];
+        const pl = this.dominators[this.currentDominator];
         return from.power > 1 && !pl.ownedCells.has(`${to.q},${to.r}`);
     }
 
@@ -126,7 +130,7 @@ export class Game extends EventTarget {
 
         if (this.isOver()) {
             this.dispatchEvent(new CustomEvent('gameOver', {
-                detail: {winner: this.players[0].color}
+                detail: {winner: this.dominators[0].color}
             }));
         }
     }
@@ -139,7 +143,7 @@ export class Game extends EventTarget {
          */
         if (!this.capturePhase) return;
         const key = `${q},${r}`;
-        const pl = this.players[this.currentPlayer];
+        const pl = this.dominators[this.currentDominator];
         const cell = this.cells.find(c => c.q === q && c.r === r);
         if (cell && cell.power > 1 && pl.ownedCells.has(key)) {
             this.selected = {q, r};
@@ -159,7 +163,7 @@ export class Game extends EventTarget {
         // Кажется ещё лучше добавить проверку на мощность.
         if (!this.canCapture(cf, ct)) return;
 
-        const pl = this.players[this.currentPlayer];
+        const pl = this.dominators[this.currentDominator];
         const key = `${to.q},${to.r}`;
         const old = ct.ownerIndex;
 
@@ -167,25 +171,25 @@ export class Game extends EventTarget {
             // Кажется логику с игроком надо перенести в его класс
             ct.power = cf.power - 1;
             cf.power = 1;
-            ct.ownerIndex = this.currentPlayer;
+            ct.ownerIndex = this.currentDominator;
             pl.ownedCells.add(key);
             this.selected = {q: to.q, r: to.r};
             return;
         }
 
-        if (old !== this.currentPlayer) {
+        if (old !== this.currentDominator) {
             const chance = this._getCaptureChance(cf.power - ct.power);
             if (Math.random() < chance) {
                 // Кажется логику с игроком надо перенести в его класс
-                this.players[old].ownedCells.delete(key);
-                ct.ownerIndex = this.currentPlayer;
+                this.dominators[old].ownedCells.delete(key);
+                ct.ownerIndex = this.currentDominator;
                 ct.power = Math.max(cf.power - ct.power, 1);
                 cf.power = 1;
                 pl.ownedCells.add(key);
 
                 this.selected = {q: to.q, r: to.r};
 
-                if (this.players[old].ownedCells.size === 0) {
+                if (this.dominators[old].ownedCells.size === 0) {
                     this._eliminate(old);
                 }
             } else {
@@ -206,7 +210,7 @@ export class Game extends EventTarget {
         const cell = this.cells.find(c => c.q === q && c.r === r);
         if (!cell) return;
 
-        const pl = this.players[this.currentPlayer];
+        const pl = this.dominators[this.currentDominator];
         const key = `${q},${r}`;
         const maxP = cell.size === 'big' ? 12 : 8;
         if (pl.ownedCells.has(key) && pl.influencePoints > 0 && cell.power < maxP) {
@@ -219,7 +223,7 @@ export class Game extends EventTarget {
         /**
          * Случайно распределяет очки influencePoints для текущего игрока
          */
-        const pl = this.players[this.currentPlayer];
+        const pl = this.dominators[this.currentDominator];
         while (pl.influencePoints > 0) {
             const upg = [];
             // TODO: Почему upg каждый раз пересчитывается?
@@ -243,10 +247,10 @@ export class Game extends EventTarget {
          * Выполняет логику окончания разных фаз
          */
         if (this.capturePhase) {
-            this.players[this.currentPlayer]
-                .influencePoints += this.players[this.currentPlayer].ownedCells.size;
+            this.dominators[this.currentDominator]
+                .influencePoints += this.dominators[this.currentDominator].ownedCells.size;
         } else {
-            this.currentPlayer = (this.currentPlayer + 1) % this.players.length;
+            this.currentDominatorIndex = (this.currentDominator + 1) % this.dominators.length;
         }
         this.capturePhase = !this.capturePhase;
         this.selected = null;
@@ -257,7 +261,7 @@ export class Game extends EventTarget {
          * Убрать игрока с индексом idx из игры
          * @param {number} idx Индекс игрока, который выбывает из игры
          */
-        this.players.splice(idx, 1);
+        this.dominators.splice(idx, 1);
         this.cells.forEach(c => {
             if (c.ownerIndex === idx) c.ownerIndex = null;
             else if (c.ownerIndex > idx) c.ownerIndex--;
@@ -266,8 +270,8 @@ export class Game extends EventTarget {
             detail: {index: idx}
         }));
         // После того как обновили индексы, нужно поправить currentPlayer
-        if (this.currentPlayer >= idx) {
-            this.currentPlayer = Math.max(0, this.currentPlayer - 1);
+        if (this.currentDominator >= idx) {
+            this.currentDominatorIndex = Math.max(0, this.currentDominator - 1);
         }
     }
 

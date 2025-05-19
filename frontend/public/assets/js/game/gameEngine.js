@@ -119,17 +119,14 @@ export class Game extends EventTarget {
         const cf = this.cells.find(c => c.q === from.q && c.r === from.r);
         const ct = this.cells.find(c => c.q === to.q   && c.r === to.r);
         if (!cf || !ct) return;
+
+        if (!this.canCapture(cf, ct)) return;
+
         const pl  = this.players[this.currentPlayer];
         const key = `${to.q},${to.r}`;
         const old = ct.ownerIndex;
 
-
-        if (old != null && ct.power === 0) {
-            this.players[old].ownedCells.delete(key);
-            ct.ownerIndex = null;
-        }
-
-        if (ct.ownerIndex == null) {
+        if (old == null) {
             ct.power      = cf.power - 1;
             cf.power      = 1;
             ct.ownerIndex = this.currentPlayer;

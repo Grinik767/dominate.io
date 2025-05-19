@@ -30,6 +30,7 @@ autoBtn.hide();
 phaseBtn.onClick(() =>
     strategies[game.currentPlayer].submitMove({ type:'endPhase' })
 );
+
 autoBtn.onClick(() =>
     game.makeMove({ type:'autoUpgrade' })
 );

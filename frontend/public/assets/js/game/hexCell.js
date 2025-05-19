@@ -35,6 +35,9 @@ export class HexCell {
     clearHighlight()    { this.wrapper.classList.remove('highlight'); }
 
     updateVisual() {
+        /**
+         * Обновляем клетку в html
+         */
         this.el.dataset.q     = this.q;
         this.el.dataset.r     = this.r;
         this.el.dataset.size  = this.sizeType;

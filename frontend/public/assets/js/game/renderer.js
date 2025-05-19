@@ -24,6 +24,7 @@ export class Renderer {
     }
 
     _render(state) {
+        // TODO: Может стоит просто убрать этот метод? Создавать поле сразу?
         if (!this.inited) {
             this._buildGrid(state);
             this.inited = true;
@@ -32,6 +33,10 @@ export class Renderer {
     }
 
     _buildGrid(state) {
+        /**
+         * Метод построения сетки по переданному состоянию
+         * @param {Object} state - Состояние игры, которое нужно отобразить
+         */
         const qs = state.cells.map(c => c.q);
         const rs = state.cells.map(c => c.r);
         const qMin = Math.min(...qs), qMax = Math.max(...qs);
@@ -91,8 +96,14 @@ export class Renderer {
     }
 
     _onCellClick(cell) {
+        /**
+         * Обработчик события нажатия на хекс.
+         * @param {HexCell} cell - Ячейка, на которую кликнули
+         */
         const state = this.game.getState();
         const idx   = state.currentPlayer;
+        // TODO: кажется эта логика должна быть в другом месте. Да и рендерер врядли должен содержать информацию
+        // о стратегиях
         const strat = this.strategies[idx];
         const key   = `${cell.q},${cell.r}`;
 

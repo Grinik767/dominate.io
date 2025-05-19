@@ -1,3 +1,6 @@
+/**
+ * Кнопка
+ */
 export class Button {
     constructor(id) { this.el = document.getElementById(id); }
     onClick(fn)     { this.el.addEventListener('click', fn); }
@@ -6,12 +9,18 @@ export class Button {
     hide()          { this.el.style.display = 'none'; }
 }
 
+/**
+ * Поле текста
+ */
 export class Display {
     constructor(id)       { this.el = document.getElementById(id); }
     setText(t)      { this.el.textContent = t; }
     setColor(c)     { this.el.style.color = c; }
 }
 
+/**
+ * Represents a game board container that manages rendering and sizing. One in all game
+ */
 export class GameBoard {
     constructor(id)       { this.container = document.getElementById(id); }
     clear()         { this.container.innerHTML = ''; }

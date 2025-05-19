@@ -41,7 +41,6 @@ export class BoardRenderer {
     }
 
     update(state, selected) {
-        console.log('called');
         this.hexMap.forEach(c => {
             c.deselect();
             c.clearHighlight();

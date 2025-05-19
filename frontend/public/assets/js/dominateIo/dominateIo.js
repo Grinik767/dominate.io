@@ -3,7 +3,7 @@ import {Dominator} from './Game/dominator.js';
 import {getRandomColors} from './globals.js';
 
 import {Player} from './Agents/player.js';
-import {BasicBot} from './Agents/bots.js';
+import {BasicBot, AggressiveBot} from './Agents/bots.js';
 
 
 import {BoardRenderer} from './View/boardRenderer.js';

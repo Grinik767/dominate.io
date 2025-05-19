@@ -236,6 +236,7 @@ export class GameLogic extends EventTarget {
             // Submit a move
             dominator.agent.submitMove(new Move('upgrade', { q: c.q, r: c.r }));
 
+            // TODO: РАЗОБРАТЬСЯ КАК РАБОТАЕТ.
             // Wait for main loop to process the move and come back to getMove()
             await new Promise(resolve => {
                 // Hook into the agent to resume autoUpgrade after the move is processed

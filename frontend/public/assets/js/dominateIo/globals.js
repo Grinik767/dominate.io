@@ -5,3 +5,7 @@
 
 export const DEFAULT_SIZE = 8;
 export const BIG_SIZE = 8;
+
+export function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}

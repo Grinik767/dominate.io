@@ -1,10 +1,6 @@
 ﻿import {Agent} from "./agent.js";
 import {Move} from "../Game/move.js";
-
-const dirs = [
-    {q: +1, r: -1}, {q: +1, r: 0}, {q: 0, r: +1},
-    {q: -1, r: +1}, {q: -1, r: 0}, {q: 0, r: -1}
-];
+import {directions, sleep} from "../globals.js";
 
 export class Bot extends Agent {
     constructor() {
@@ -16,6 +12,8 @@ export class Bot extends Agent {
      * @returns {Promise<Object>} The move selected by the player.
      */
     async getMove(state) {
+        await sleep(700);
+
         const currentDominator = state.dominators[state.currentDominatorIndex];
         if (state.capturePhase) {
             // найдём все возможные атаки
@@ -24,10 +22,10 @@ export class Bot extends Agent {
                 if (currentDominator.ownedCells.has(key)
                     && cell.power > 1) {
                     // проверяем соседей
-                    for (const d of dirs) {
+                    for (const d of directions) {
                         const nq = cell.q + d.q, nr = cell.r + d.r;
                         const neigh = state.cells.find(c => c.q === nq && c.r === nr);
-                        if (neigh && neigh.ownerIndex !== state.currentDominatorIndex) {
+                        if (neigh && (neigh.owner == null || neigh.owner.index !== state.currentDominatorIndex)) {
                             return new Move(
                                 'capture', {
                                     from: {q: cell.q, r: cell.r},

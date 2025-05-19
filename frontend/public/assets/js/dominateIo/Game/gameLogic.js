@@ -217,26 +217,39 @@ export class GameLogic extends EventTarget {
     }
 
     async autoUpgrade() {
-        /**
-         * Случайно распределяет очки influencePoints для текущего игрока
-         */
         const dominator = this.state.currentDominator;
+
         while (dominator.influencePoints > 0) {
             const upg = [];
-            // TODO: Почему upg каждый раз пересчитывается?
-            // TODO: добавить просто вызов метода update
+
             for (const key of dominator.ownedCells) {
                 const [q, r] = key.split(',').map(Number);
                 const c = this.state.cells.find(c => c.q === q && c.r === r);
                 const maxP = c.size;
                 if (c.power < maxP) upg.push(c);
             }
+
             if (!upg.length) break;
+
             const c = upg[Math.floor(Math.random() * upg.length)];
-            // this._tryUpgrade(c.q, c.r);
-            dominator.agent.submitMove(new Move('upgrade', {q: c.q, r: c.r}));
+
+            // Submit a move
+            dominator.agent.submitMove(new Move('upgrade', { q: c.q, r: c.r }));
+
+            // Wait for main loop to process the move and come back to getMove()
+            await new Promise(resolve => {
+                // Hook into the agent to resume autoUpgrade after the move is processed
+                const originalGetMove = dominator.agent.getMove.bind(dominator.agent);
+                dominator.agent.getMove = async (state) => {
+                    // Restore original getMove for next call
+                    dominator.agent.getMove = originalGetMove;
+                    resolve(); // Continue autoUpgrade
+                    return await originalGetMove(state); // Proceed with normal behavior
+                };
+            });
         }
     }
+
 
     _endPhase() {
         /**

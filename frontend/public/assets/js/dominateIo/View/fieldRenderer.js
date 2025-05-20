@@ -9,7 +9,7 @@ const vGap = 2;
 const hSpacing = hexWidth + hGap;
 const vSpacing = hexHeight - hexHeight / 4 + vGap;
 
-export class BoardRenderer {
+export class FieldRenderer {
     constructor(gameState, onCellClick) {
         this.board = new GameBoard('dominateIo-container');
         this.hexMap = new Map();

@@ -37,7 +37,7 @@ export class GameLogic extends EventTarget {
         if (!directions.some(d => d.q === dq && d.r === dr)) {
             return false;
         }
-        return from.power > 1 && !this.currentDominator.ownedCells.has(`${to.q},${to.r}`);
+        return from.power > 1 && !this.state.currentDominator.ownedCells.has(`${to.q},${to.r}`);
     }
 
     makeMove(move) {
@@ -201,20 +201,22 @@ export class GameLogic extends EventTarget {
             ceilFrom.power = 1;
             ceilTo.owner = this.state.currentDominator;
 
-            this.currentDominator.ownedCells.add(key);
+            this.state.currentDominator.ownedCells.add(key);
             this.selected = {q: to.q, r: to.r};
             return;
         }
 
         const oldIndex = ceilTo.owner.index;
-        if (oldIndex !== this.currentDominatorIndex) {
+        if (oldIndex !== this.state.currentDominatorIndex) {
             const chance = this._getCaptureChance(ceilFrom.power - ceilTo.power);
             if (Math.random() < chance) {
+                if (!this.state.dominators[oldIndex].ownedCells.has(key))
+                    throw new Error(`${this.state.dominators[oldIndex].name}[${this.state.dominators[oldIndex].index}] don't have ${key}`);
                 this.state.dominators[oldIndex].ownedCells.delete(key);
                 ceilTo.owner = this.state.currentDominator;
                 ceilTo.power = Math.max(ceilFrom.power - ceilTo.power, 1);
                 ceilFrom.power = 1;
-                this.currentDominator.ownedCells.add(key);
+                this.state.currentDominator.ownedCells.add(key);
 
                 this.selected = {q: to.q, r: to.r};
 

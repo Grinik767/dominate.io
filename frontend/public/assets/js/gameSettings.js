@@ -3,6 +3,7 @@ let botLevelsColors = ["green", "orange", "red"];
 let currentLevelIndex = 1;
 let botsCount = 1;
 let playerCount = 1;
+let fieldSize = 6;
 
 const minCountPlayers = 1;
 const maxCountPlayers = 4;
@@ -10,13 +11,24 @@ const maxCountPlayers = 4;
 const minCountBots = 0;
 const maxCountBots = 4;
 
+const minFiledSize = 3;
+const maxFiledSize = 6;
+
 const countBotsEl = document.querySelector('#botsCount .value-number');
 const countPlayersEl = document.querySelector('#playerCount .value-number');
+const fieldSizeEl = document.querySelector("#fieldSize .value-number");
+const levelBotEl = document.getElementById("botsLevel");
+
+
 const buttonPlayersPlus = document.querySelector('#playerCount .plus');
 const buttonPlayersMinus = document.querySelector('#playerCount .minus');
+
 const buttonBotsPlus = document.querySelector('#botsCount .plus');
 const buttonBotsMinus = document.querySelector('#botsCount .minus');
-const levelBotEl = document.getElementById("botsLevel");
+
+const fieldSizePlus = document.querySelector('#fieldSize .plus');
+const fieldSizeMinus = document.querySelector('#fieldSize .minus');
+
 
 document.addEventListener("DOMContentLoaded", () => {
     levelBotEl.textContent = botLevels[currentLevelIndex];
@@ -24,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     countBotsEl.textContent = botsCount.toString();
     countPlayersEl.textContent = playerCount.toString();
+    fieldSizeEl.textContent = fieldSize.toString();
 
     levelBotEl.addEventListener("click", changeBotsLevel);
 
@@ -44,11 +57,21 @@ document.addEventListener("DOMContentLoaded", () => {
             changeCountBots(-1)
     });
 
-    updateAvailabilityButtons();
+    fieldSizePlus.addEventListener("click", () => {
+        if (!fieldSizePlus.classList.contains('locked'))
+            changeFieldSize(1)
+    });
+    fieldSizeMinus.addEventListener("click", () => {
+        if (!fieldSizeMinus.classList.contains('locked'))
+            changeFieldSize(-1);
+    });
+
+    updateAvailabilityPlayerAndBotsButtons();
+    updateAvailabilityFieldSizeButtons();
 
     const startGameButton = document.getElementById("startGame");
     startGameButton.addEventListener("click", () => {
-        window.location.href = `/game.html?players=${playerCount}&bots=${botsCount}&level=${currentLevelIndex}`;
+        window.location.href = `/game.html?players=${playerCount}&bots=${botsCount}&level=${currentLevelIndex}&size=${fieldSize}`;
     })
 });
 
@@ -64,7 +87,7 @@ function changeCountPlayers(delta) {
         changeCountBots(1);
     }
 
-    updateAvailabilityButtons();
+    updateAvailabilityPlayerAndBotsButtons();
 }
 
 function changeCountBots(delta) {
@@ -74,10 +97,10 @@ function changeCountBots(delta) {
     countBotsEl.textContent = count.toString();
 
     botsCount = count;
-    updateAvailabilityButtons();
+    updateAvailabilityPlayerAndBotsButtons();
 }
 
-function updateAvailabilityButtons() {
+function updateAvailabilityPlayerAndBotsButtons() {
     buttonPlayersMinus.classList.remove('locked');
     buttonPlayersPlus.classList.remove('locked');
     if (playerCount === maxCountPlayers) {
@@ -99,6 +122,16 @@ function updateAvailabilityButtons() {
     }
 }
 
+
+function updateAvailabilityFieldSizeButtons() {
+    fieldSizeMinus.classList.remove('locked');
+    fieldSizePlus.classList.remove('locked');
+    if (fieldSize === maxFiledSize) {
+        fieldSizePlus.classList.add('locked');
+    } else if (fieldSize === minFiledSize) {
+        fieldSizeMinus.classList.add('locked');
+    }
+}
 function changeBotsLevel() {
     levelBotEl.classList.remove(botLevelsColors[currentLevelIndex]);
     currentLevelIndex = (currentLevelIndex + 1) % 3;
@@ -106,3 +139,12 @@ function changeBotsLevel() {
     levelBotEl.classList.add(botLevelsColors[currentLevelIndex]);
 }
 
+function changeFieldSize(delta) {
+    let size = fieldSize;
+
+    size = Math.min(maxFiledSize, Math.max(minFiledSize, size + delta));
+    fieldSizeEl.textContent = size.toString();
+
+    fieldSize = size;
+    updateAvailabilityFieldSizeButtons();
+}

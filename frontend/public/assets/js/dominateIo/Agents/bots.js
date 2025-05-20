@@ -28,7 +28,7 @@ export class BasicBot extends Agent {
 
     async getMove(state) {
         console.log("getMove")
-        await sleep(300);
+        await sleep(100);
         const dominatorIndex = state.currentDominatorIndex;
         const dominator = state.dominators[dominatorIndex];
 

@@ -99,3 +99,7 @@
 .minus:active {
     color: var(--gray-color);
 }
+
+.plus:active {
+    color: var(--gray-color);
+}

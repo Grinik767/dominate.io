@@ -22,7 +22,13 @@ for (let i = 0; i < players; i++) {
 }
 
 for (let i = 0; i < bots; i++) {
-    dominators.push(new Dominator(colors[i + players], `Bot ${i}`, new BasicBot(), i + players));
+    let agent = new BasicBot();
+    let name = 'Bot'
+    if (level === 2) {
+        agent = new AggressiveBot();
+        name = 'Aggressive Bot'
+    }
+    dominators.push(new Dominator(colors[i + players], `${name} ${i}`, agent, i + players));
 }
 
 dominators = [...dominators].sort(() => 0.5 - Math.random());

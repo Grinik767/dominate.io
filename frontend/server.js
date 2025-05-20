@@ -40,27 +40,3 @@ server.listen(3000, () => {
     console.log('JSON Server with custom logic running on http://localhost:3000');
 });
 
-
-// const express = require('express');
-// const path = require('path');
-// const app = express();
-// const PORT = 3000;
-//
-// // Раздаём статические файлы из папки public
-// app.use(express.static(path.join(__dirname, 'public')));
-//
-// app.get('/', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public', 'index.html'));
-// });
-//
-// app.get('/about', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public', 'about.html'));
-// });
-//
-// app.get('/contact', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public', 'contact.html'));
-// });
-//
-// app.listen(PORT, () => {
-//     console.log(`Сервер запущен на http://localhost:${PORT}`);
-// });

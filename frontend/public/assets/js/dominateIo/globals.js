@@ -12,7 +12,7 @@ export function sleep(ms) {
 
 export function getRandomColors(size) {
     const colors = [
-        '#FF5733', '#33FF57', '#3357FF', '#F0F', '#0FF', '#000', '#FFF',
+        '#FF5733', '#33FF57', '#3357FF', '#F0F', '#0FF',
         '#FF33A8', '#A833FF', '#2a8a5f', '#FFD700', '#8B0000', '#006400',
         '#4B0082', '#FF8C00', '#2E8B57',
     ];

@@ -27,14 +27,14 @@ export class BasicBot extends Agent {
     }
 
     async getMove(state) {
-        console.log("getMove")
-        await sleep(100);
         const dominatorIndex = state.currentDominatorIndex;
         const dominator = state.dominators[dominatorIndex];
 
         if (state.capturePhase) {
+            await sleep(150);
             return this.getMoveCapturePhase(state, dominator);
         } else {
+            await sleep(40);
             return this.getMoveUpgradePhase(state, dominator);
         }
     }

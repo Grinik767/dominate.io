@@ -154,15 +154,50 @@ export class GameLogic extends EventTarget {
     _placeStartingCells() {
         /**
          * Метод расположения начальных позиций игроков
+         * с равномерным расстоянием между ними
          */
+        const getHexDistance = (a, b) => {
+            return Math.max(
+                Math.abs(a.q - b.q),
+                Math.abs(a.q + a.r - b.q - b.r),
+                Math.abs(a.r - b.r)
+            );
+        };
+
+        const availableCells = this.state.cells.filter(cell => cell.owner == null);
+        const selectedCells = [];
+
         this.state.dominators.forEach((dominator, idx) => {
-            let cell;
-            do {
-                cell = this.state.cells[Math.floor(Math.random() * this.state.cells.length)];
-            } while (cell.owner != null);
-            cell.owner = dominator;
-            cell.power = 2;
-            dominator.ownedCells.add(`${cell.q},${cell.r}`);
+            let bestCell = null;
+            let bestMinDistance = -1;
+
+            if (idx === 0) {
+                bestCell = availableCells[Math.floor(Math.random() * availableCells.length)];
+            } else {
+                for (const cell of availableCells) {
+                    if (cell.owner != null) continue;
+
+                    const minDist = selectedCells.reduce((min, other) => {
+                        const dist = getHexDistance(cell, other);
+                        return Math.min(min, dist);
+                    }, Infinity);
+
+                    if (minDist > bestMinDistance) {
+                        bestMinDistance = minDist;
+                        bestCell = cell;
+                    }
+                }
+            }
+
+            if (bestCell) {
+                bestCell.owner = dominator;
+                bestCell.power = 2;
+                dominator.ownedCells.add(`${bestCell.q},${bestCell.r}`);
+                selectedCells.push(bestCell);
+
+                const index = availableCells.indexOf(bestCell);
+                if (index > -1) availableCells.splice(index, 1);
+            }
         });
     }
 

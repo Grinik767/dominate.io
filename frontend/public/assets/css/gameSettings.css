@@ -80,6 +80,7 @@
 
 .minus {
     color: red;
+    transition: 0.5s;
 }
 
 .plus:active {
@@ -89,4 +90,12 @@
 
 .minus:active {
     color: var(--red-gray-color);
+}
+
+.locked {
+    color: var(--gray-color);
+}
+
+.minus:active {
+    color: var(--gray-color);
 }

@@ -29,7 +29,8 @@ export class BoardRenderer {
 
         const totalW = (qMax - qMin + 1) * hSpacing + hexWidth;
         const totalH = (rMax - rMin + 1) * vSpacing + hexHeight;
-        const cx = totalW / 2, cy = totalH / 2;
+        // TODO: Я временно добаил отсуп, чтобы по центру borad был. Надо будет потом поправить
+        const cx = totalW / 2, cy = totalH / 2 - 40;
 
         this.board.setSize(totalW, totalH);
 

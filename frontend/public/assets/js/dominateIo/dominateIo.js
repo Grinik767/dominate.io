@@ -33,7 +33,7 @@ for (let i = 0; i < bots; i++) {
 
 dominators = [...dominators].sort(() => 0.5 - Math.random());
 
-const gameLogic = new GameLogic(5, dominators);
+const gameLogic = new GameLogic(2, dominators);
 const borderRenderer = new BoardRenderer(gameLogic.state, gameLogic.onCellClick.bind(gameLogic));
 const ui = new UI(gameLogic);
 
@@ -44,4 +44,9 @@ const ui = new UI(gameLogic);
         borderRenderer.update(gameLogic.state, gameLogic.selected);
         ui.update(gameLogic);
     }
+
+    gameLogic.dispatchEvent(new CustomEvent('gameOver', {
+        detail: {winner: gameLogic.state.dominators[0]}
+    }));
 })();
+

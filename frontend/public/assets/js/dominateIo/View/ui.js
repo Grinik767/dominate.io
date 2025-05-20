@@ -7,7 +7,9 @@ export class UI {
         this.autoBtn = new Button('auto-upgrade');
         this.pointsLabel = new Display('points');
         this.currentPlayerLabel = new Display('player-color-name');
+        this.exitButton = new Button('exit');
 
+        this.exitButton.hide();
         this.autoBtn.hide();
 
         this.phaseBtn.onClick(() => {
@@ -30,9 +32,9 @@ export class UI {
             this.autoBtn.show();
         }
 
-        this.currentPlayerLabel.setText(gameLogic.state.currentDominator.name);
+        this.currentPlayerLabel.setText(`Ходит игрок: ${gameLogic.state.currentDominator.name}`);
         this.currentPlayerLabel.setColor(gameLogic.state.currentDominator.color);
-        this.pointsLabel.setText(gameLogic.state.currentDominator.influencePoints);
+        this.pointsLabel.setText(`Очки влияния: ${gameLogic.state.currentDominator.influencePoints}`);
 
         if (!(gameLogic.state.currentDominator.agent instanceof Player)) {
             this.autoBtn.hide();
@@ -43,6 +45,15 @@ export class UI {
     }
 
     showWinner(wiener) {
-        alert(`Победил игрок: ${wiener.name.toUpperCase()}!`);
+        this.phaseBtn.hide();
+        this.autoBtn.hide();
+        this.pointsLabel.setText("")
+
+        this.currentPlayerLabel.setText(`Победил игрок: ${wiener.name.toUpperCase()}!`);
+        this.exitButton.show();
+        this.exitButton.setText("Выйти в главное меню");
+        this.exitButton.onClick(() => {
+            window.location.href = `/index.html`;
+        })
     }
 }

@@ -62,12 +62,6 @@ export class GameLogic extends EventTarget {
                 this.selected = null;
             }
         }
-
-        if (this.isOver()) {
-            this.dispatchEvent(new CustomEvent('gameOver', {
-                detail: {winner: this.state.dominators[0]}
-            }));
-        }
     }
 
     onCellClick(viewCell) {
@@ -291,7 +285,6 @@ export class GameLogic extends EventTarget {
         }
     }
 
-
     _endPhase() {
         /**
          * Выполняет логику окончания разных фаз
@@ -315,10 +308,18 @@ export class GameLogic extends EventTarget {
         this.state.dominators.splice(idx, 1);
         this.state.cells.forEach(c => {
             if (c.owner !== null){
-                if (c.owner.index === idx) c.ownerIndex = null;
-                else if (c.owner.index > idx) c.ownerIndex--;
+                if (c.owner.index === idx) {
+                    c.owner = null;
+                }
             }
         });
+
+        this.state.dominators.forEach((dominator) => {
+            if (dominator.index > idx){
+                dominator.index -= 1;
+            }
+        })
+
         this.dispatchEvent(new CustomEvent('playerEliminated', {
             detail: {index: idx}
         }));

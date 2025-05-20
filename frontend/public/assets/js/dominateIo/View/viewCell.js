@@ -4,12 +4,12 @@ export class ViewCell {
     constructor(cell, hSpacing, vSpacing, cx, cy, omClick) {
         this.cell = cell;
 
-        const x = (cell.q + cell.r/2)*hSpacing + cx;
-        const y = cell.r*vSpacing + cy;
+        const x = (cell.q + cell.r / 2) * hSpacing + cx;
+        const y = cell.r * vSpacing + cy;
 
         this.wrapper = document.createElement('div');
 
-        let sizeType = cell.size === BIG_SIZE? 'big' : 'small';
+        let sizeType = cell.size === BIG_SIZE ? 'big' : 'small';
 
         this.wrapper.className = `hex-wrapper hex-${sizeType}`;
         this.wrapper.style.left = x + 'px';

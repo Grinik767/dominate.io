@@ -2,8 +2,8 @@ import {ViewCell} from './viewCell.js';
 import {GameBoard} from "./components.js";
 import {directions} from "../globals.js";
 
-const hexWidth = 50;
-const hexHeight = 58;
+const hexWidth = 40;
+const hexHeight = 46;
 const hGap = 2;
 const vGap = 2;
 const hSpacing = hexWidth + hGap;
@@ -29,7 +29,7 @@ export class FieldRenderer {
 
         const totalW = (qMax - qMin + 1) * hSpacing + hexWidth;
         const totalH = (rMax - rMin + 1) * vSpacing + hexHeight;
-        // TODO: Я временно добаил отсуп, чтобы по центру borad был. Надо будет потом поправить
+        // TODO: Я временно добаил отсуп, чтобы по центру board был. Надо будет потом поправить
         const cx = totalW / 2, cy = totalH / 2 - 40;
 
         this.board.setSize(totalW, totalH);

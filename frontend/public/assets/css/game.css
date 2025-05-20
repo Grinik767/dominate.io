@@ -1,6 +1,6 @@
 :root {
-    --hex-width: 50px;
-    --hex-height: 58px;
+    --hex-width: 40px;
+    --hex-height: 46px;
     --hex-h-gap: 2px;
     --hex-v-gap: 2px;
     --hex-h-spacing: calc(var(--hex-width) + var(--hex-h-gap));
@@ -13,16 +13,17 @@ body {
     background: #222;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     height: 100vh;
 }
 
 .main {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    gap: 20px;
+    justify-content: center;
+    gap: 10px;
+    height: 90%;
 }
 
 #hex-wrapper {
@@ -77,11 +78,10 @@ body {
 }
 
 #scoreboard {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     color: var(--green-color);
     text-align: center;
-    margin-bottom: 10px;
 }
 
 #scoreboard span {
@@ -99,6 +99,8 @@ body {
     flex-direction: row;
     gap: 10px;
     justify-content: center;
+    position: absolute;
+    bottom: 20px;
 }
 
 #current-player {

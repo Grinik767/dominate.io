@@ -140,6 +140,43 @@ body {
     display: none;
 }
 
+#dominators-list {
+    position: absolute;
+    right: 100px;
+    top: 50px;
+    background-color: var(--gray-color);
+    padding: 10px;
+}
+
+.dominator {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+
+.dominator .name {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.dominator .color-box {
+    width: 20px;
+    height: 20px;
+}
+
+.dominator.current .name {
+    color: var(--green-color);
+}
+
+.dominator:not(.current) .name {
+    color: var(--text-color);
+}
+
+.color-box {
+    border: 3px solid white;
+}
+
 button:hover {
     background-color: #555;
 }

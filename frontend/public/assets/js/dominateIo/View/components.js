@@ -30,3 +30,57 @@ export class GameBoard {
         this.container.style.height = h + 'px';
     }
 }
+
+export class DominatorList {
+    constructor(id) {
+        this.el = document.getElementById(id);
+        this.dominators = [];
+        this.currentIndex = -1;
+    }
+
+    setDominators(dominators) {
+        this.dominators = dominators;
+        console.log(dominators)
+        this.render();
+    }
+
+    setCurrentPlayer(index) {
+        console.log(index);
+        if (index >= 0 && index < this.dominators.length) {
+            this.currentIndex = index;
+            this.render();
+        }
+    }
+
+    render() {
+        this.el.innerHTML = '';
+
+        this.dominators.forEach((dominator, index) => {
+            const domElement = document.createElement('div');
+            domElement.className = 'dominator';
+            if (index === this.currentIndex) {
+                domElement.classList.add('current');
+            }
+
+            const name = document.createElement('span');
+            name.className = 'name';
+            name.textContent = dominator.name;
+
+            const colorBox = document.createElement('div');
+            colorBox.className = 'color-box';
+            colorBox.style.backgroundColor = dominator.color;
+
+            domElement.appendChild(name);
+            domElement.appendChild(colorBox);
+            this.el.appendChild(domElement);
+        });
+    }
+
+    show() {
+        this.el.style.display = 'block';
+    }
+
+    hide() {
+        this.el.style.display = 'none';
+    }
+}

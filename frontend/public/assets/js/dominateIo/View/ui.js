@@ -1,4 +1,4 @@
-﻿import {Button, Display} from './components.js';
+﻿import {Button, Display, DominatorList} from './components.js';
 import {Player} from "../Agents/player.js";
 
 export class UI {
@@ -7,6 +7,7 @@ export class UI {
         this.autoBtn = new Button('auto-upgrade');
         this.pointsLabel = new Display('points');
         this.currentPlayerLabel = new Display('player-color-name');
+        this.dominatorsList = new DominatorList("dominators-list");
         this.exitButton = new Button('exit');
 
         this.exitButton.hide();
@@ -19,6 +20,9 @@ export class UI {
         this.autoBtn.onClick(gameLogic.autoUpgrade.bind(gameLogic));
 
         gameLogic.addEventListener('gameOver', ev => this.showWinner(ev.detail.winner));
+
+        this.dominatorsList.setDominators(gameLogic.state.dominators);
+        this.dominatorsList.render();
 
         this.update(gameLogic);
     }
@@ -33,6 +37,7 @@ export class UI {
         }
 
         this.currentPlayerLabel.setText(`Ходит игрок: ${gameLogic.state.currentDominator.name}`);
+        this.dominatorsList.setCurrentPlayer(gameLogic.state.currentDominator.index)
         this.currentPlayerLabel.setColor(gameLogic.state.currentDominator.color);
         this.pointsLabel.setText(`Очки влияния: ${gameLogic.state.currentDominator.influencePoints}`);
 

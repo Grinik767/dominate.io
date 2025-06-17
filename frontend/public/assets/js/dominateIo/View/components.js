@@ -62,7 +62,7 @@ export class DominatorList {
                 domElement.classList.add('current');
             }
 
-            const name = document.createElement('span');
+            const name = document.createElement('div');
             name.className = 'name';
             name.textContent = dominator.name;
 

@@ -146,17 +146,23 @@ body {
     top: 50px;
     background-color: var(--gray-color);
     padding: 10px;
+    width: 200px;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    display: flex;
 }
 
 .dominator {
     display: flex;
-    align-items: center;
     margin-bottom: 10px;
     font-size: 24px;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .dominator .name {
-    margin-right: 10px;
     font-weight: bold;
 }
 
@@ -174,7 +180,7 @@ body {
 }
 
 .color-box {
-    border: 3px solid white;
+    border: 1px solid white;
 }
 
 button:hover {

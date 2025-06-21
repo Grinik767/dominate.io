@@ -3,17 +3,14 @@ import {Dominator} from './Game/dominator.js';
 import {getRandomColors} from './globals.js';
 
 import {Player} from './Agents/player.js';
-import {BasicBot, AggressiveBot} from './Agents/bots.js';
-
+import {NetPlayer} from './Agents/netPlayer.js';
 
 import {FieldRenderer} from './View/fieldRenderer.js';
 import {UI} from "./View/ui.js";
 
 const params = new URLSearchParams(window.location.search);
-const players = parseInt(params.get('players'), 10);
-const bots = parseInt(params.get('bots'), 10);
-const level = parseInt(params.get('level'), 10);
-const fieldSize = parseInt(params.get('size'), 10);
+const lobbyCode = params.get('code');
+const playersCount = parseInt(params.get('playersCount'));
 
 const colors = getRandomColors(players + bots);
 
@@ -31,9 +28,6 @@ for (let i = 0; i < bots; i++) {
     }
     dominators.push(new Dominator(colors[i + players], `${name} ${i}`, agent, i + players));
 }
-
-// TODO: Пофиксить шафл. Там проблема с переходм к след игроку
-// dominators = [...dominators].sort(() => 0.5 - Math.random());
 
 const gameLogic = new GameLogic(fieldSize, dominators);
 const borderRenderer = new FieldRenderer(gameLogic.state, gameLogic.onCellClick.bind(gameLogic));

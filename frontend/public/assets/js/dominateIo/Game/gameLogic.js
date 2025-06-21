@@ -3,15 +3,13 @@ import {Cell} from "./cell.js";
 import {directions, DEFAULT_SIZE, BIG_SIZE} from "../globals.js";
 import {Player} from "../Agents/player.js";
 import {Move} from "./move.js";
+import {generateField} from "./field";
 
 export class GameLogic extends EventTarget {
     constructor(radius, dominators) {
         super();
-        this.radius = radius;
         this.selected = null;
-        let cells = this._generateField();
-        this.state = new GameState(cells, dominators);
-        this._placeStartingCells();
+        this.state = generateField(radius, dominators)
     }
 
     get currentDominator() {
@@ -50,6 +48,9 @@ export class GameLogic extends EventTarget {
                 break;
             case 'upgrade':
                 this._tryUpgrade(move.data.q, move.data.r);
+                break;
+            case 'changeCell':
+                this._changeCell(move.data.q, move.data.r, move.data.s, move.data.power, move.data.owner);
                 break;
             case 'endPhase':
                 this._endPhase();
@@ -109,7 +110,6 @@ export class GameLogic extends EventTarget {
             }
         }
 
-        // Flood fill to find the largest connected group
         const visited = new Set();
         let largestGroup = [];
 
@@ -150,56 +150,6 @@ export class GameLogic extends EventTarget {
         return largestGroup;
     }
 
-
-    _placeStartingCells() {
-        /**
-         * Метод расположения начальных позиций игроков
-         * с равномерным расстоянием между ними
-         */
-        const getHexDistance = (a, b) => {
-            return Math.max(
-                Math.abs(a.q - b.q),
-                Math.abs(a.q + a.r - b.q - b.r),
-                Math.abs(a.r - b.r)
-            );
-        };
-
-        const availableCells = this.state.cells.filter(cell => cell.owner == null);
-        const selectedCells = [];
-
-        this.state.dominators.forEach((dominator, idx) => {
-            let bestCell = null;
-            let bestMinDistance = -1;
-
-            if (idx === 0) {
-                bestCell = availableCells[Math.floor(Math.random() * availableCells.length)];
-            } else {
-                for (const cell of availableCells) {
-                    if (cell.owner != null) continue;
-
-                    const minDist = selectedCells.reduce((min, other) => {
-                        const dist = getHexDistance(cell, other);
-                        return Math.min(min, dist);
-                    }, Infinity);
-
-                    if (minDist > bestMinDistance) {
-                        bestMinDistance = minDist;
-                        bestCell = cell;
-                    }
-                }
-            }
-
-            if (bestCell) {
-                bestCell.owner = dominator;
-                bestCell.power = 2;
-                dominator.ownedCells.add(`${bestCell.q},${bestCell.r}`);
-                selectedCells.push(bestCell);
-
-                const index = availableCells.indexOf(bestCell);
-                if (index > -1) availableCells.splice(index, 1);
-            }
-        });
-    }
 
     _trySelect(q, r) {
         /**
@@ -320,6 +270,10 @@ export class GameLogic extends EventTarget {
                 };
             });
         }
+    }
+
+    _changeCell() {
+
     }
 
     _endPhase() {

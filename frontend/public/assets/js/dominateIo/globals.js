@@ -1,4 +1,6 @@
-﻿export const directions = [
+﻿export const backendPreffix = "http://localhost:8080/api";
+
+export const directions = [
     {q: +1, r: -1}, {q: +1, r: 0}, {q: 0, r: +1},
     {q: -1, r: +1}, {q: -1, r: 0}, {q: 0, r: -1}
 ]

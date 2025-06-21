@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Step 1: Request Lobby Info
     setUpConnection(sessionId, code);
 });
 

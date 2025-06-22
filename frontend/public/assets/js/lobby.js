@@ -1,6 +1,7 @@
 ﻿import {backendPreffixWS} from "./dominateIo/globals.js";
 
 const playerName = localStorage.getItem('playerName');
+const params = new URLSearchParams(window.location.search);
 const code = params.get('code');
 let users;
 let socket;

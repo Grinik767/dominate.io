@@ -85,7 +85,6 @@ export class NetGameLogic extends EventTarget {
 
         // Если текущий доминтор не игрок(бот или сетевой игрок), ничего не делаем
         if (this.state.currentDominator.name !== this.playerName) {
-            console.log(this.state.currentDominator.name, this.playerName);
             return;
         }
 
@@ -226,7 +225,6 @@ export class NetGameLogic extends EventTarget {
     }
 
     _changeCells(moves) {
-        console.log(moves, "moves in changeCell");
         this.state.cells.forEach((cell) => {
             moves.forEach((move) => {
                 if (move.q === cell.q && move.r === cell.r) {
@@ -258,11 +256,9 @@ export class NetGameLogic extends EventTarget {
         }
 
         const total = this.state.dominators.length;
-        console.log(nextDominatorNickname, "from server")
         while (this.state.currentDominator.name !== nextDominatorNickname) {
             if (this.state.dominators[this.state.currentDominatorIndex].eliminated) continue;
             this.state.currentDominatorIndex = (this.state.currentDominatorIndex + 1) % total;
-            console.log(this.currentDominator, "from here")
         }
 
         this.state.capturePhase = !this.state.capturePhase;
@@ -296,11 +292,6 @@ export class NetGameLogic extends EventTarget {
     submitMakeMove(moves) {
         if (!this.socket) throw new Error("Socket not initialized");
 
-        console.log(moves);
-        console.log(JSON.stringify({
-            type: "MakeMove",
-            moves: moves,
-        }))
         this.socket.send(JSON.stringify({
             type: "MakeMove",
             moves: moves,
@@ -324,14 +315,12 @@ export class NetGameLogic extends EventTarget {
         this.socket = new WebSocket(backendPreffixWS + `/Game?code=${this.code}&nickname=${this.playerName}`);
 
         this.socket.onopen = () => {
-            console.log("WebSocket connected in NetGameLogic");
             this.socket.send(JSON.stringify({
                 type: "GetPlayers"
             }))
         };
 
         this.socket.onmessage = (event) => {
-            console.log("event: ", event);
             const data = JSON.parse(event.data);
 
             if (data.type === "MoveMade") {
@@ -354,14 +343,11 @@ export class NetGameLogic extends EventTarget {
         };
 
         this.socket.onclose = (message) => {
-            console.log(message)
-            console.warn("WebSocket disconnected");
-            // window.location.href = "/index.html";
+            window.location.href = "/index.html";
         };
 
         this.socket.onerror = (error) => {
-            console.log("error: ", error);
-            // window.location.href = "/error.html";
+            window.location.href = "/error.html";
         };
     }
 }

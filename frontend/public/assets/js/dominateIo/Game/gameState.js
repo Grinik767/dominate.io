@@ -20,7 +20,6 @@ export class GameState {
         for (const cell of this.cells) {
             if (cell.owner && cell.owner !== -1){
                 cell.owner = cell.owner.index;
-                console.log(cell.owner)
             }
             else {
                 cell.owner = -1;
@@ -58,7 +57,6 @@ export class GameState {
             })
         });
 
-        console.log(cells);
         return new GameState(cells, dominators);
     }
 }

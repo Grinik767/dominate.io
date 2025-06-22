@@ -24,7 +24,6 @@ export class NetPlayer extends Agent {
      * @param {Move} move - The move chosen by the player.
      */
     submitMove(move) {
-        console.log(move, 'in submitMove');
         if (this._resolveMove) {
             this._resolveMove(move);
             this._resolveMove = null;

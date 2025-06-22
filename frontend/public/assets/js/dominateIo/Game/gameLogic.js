@@ -115,6 +115,7 @@ export class GameLogic extends EventTarget {
         if (cell && cell.power > 1 && this.state.currentDominator.ownedCells.has(key)) {
             this.selected = {q, r};
         }
+        AudioPlayer.playSound("click")
     }
 
     _tryCapture(from, to) {

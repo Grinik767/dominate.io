@@ -30,7 +30,7 @@ const state = GameState.fromCells(
 
 const netGameLogic = new NetGameLogic(state, thisPlayerName, code);
 const borderRenderer = new FieldRenderer(netGameLogic.state, netGameLogic.onCellClick.bind(netGameLogic));
-const ui = new UI(netGameLogic);
+const ui = new UI(netGameLogic, {type: "submitEndPhase"});
 
 (async function mainLoop() {
     while (!netGameLogic.isOver()) {

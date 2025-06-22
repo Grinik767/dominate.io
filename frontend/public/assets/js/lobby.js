@@ -77,7 +77,6 @@ function setUpConnection(code) {
                     renderLobbyUsers();
                     break;
                 case 'PlayerJoined':
-                    console.log("playerJoined");
                     if (playerName !== data.nickname) {
                         users.push({
                             name: data.nickname,
@@ -89,7 +88,6 @@ function setUpConnection(code) {
                     }
                     break;
                 case 'Readiness':
-                    console.log("switchReadiness");
                     if (data.nickname !== playerName) {
                         toggleReadyStatusFromNetClient(data.nickname, data.isReady);
                     }
@@ -110,7 +108,6 @@ function setUpConnection(code) {
                     window.location.href = '/onlineGame.html';
                     break;
                 case 'PlayerLeft':
-                    console.log("playerLeft");
                     if (data.nickname !== playerName) {
                         const index = users.findIndex(u => u.name === data.nickname);
                         if (index !== -1) {
@@ -121,7 +118,6 @@ function setUpConnection(code) {
                     break;
                 default:
                     console.warn('Unknown message type:', data.type);
-                    console.log(data);
             }
         });
 
@@ -208,7 +204,6 @@ function toggleReadyStatusFromNetClient(name, isReady) {
 }
 
 function leaveLobby() {
-    console.log("leaveLobby");
     closeConnection();
     window.location.href = `/index.html`;
 }

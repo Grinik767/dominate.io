@@ -2,7 +2,7 @@
 import {Player} from "../Agents/player.js";
 
 export class UI {
-    constructor(gameLogic) {
+    constructor(gameLogic, phaseButtonMove) {
         this.phaseBtn = new Button('phase-button');
         this.autoBtn = new Button('auto-upgrade');
         this.pointsLabel = new Display('points');
@@ -14,7 +14,7 @@ export class UI {
         this.autoBtn.hide();
 
         this.phaseBtn.onClick(() => {
-            gameLogic.currentDominator.agent.submitMove({type: 'submitEndPhase'});
+            gameLogic.currentDominator.agent.submitMove(phaseButtonMove);
         });
 
         this.autoBtn.onClick(gameLogic.autoUpgrade.bind(gameLogic));

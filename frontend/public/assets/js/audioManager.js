@@ -5,7 +5,6 @@
         const soundFiles = {
             'click': 'assets/sounds/click.mp3',
             'wrong-click': 'assets/sounds/wrong-click.mp3',
-            'music': 'assets/sounds/music.mp3',
             'player-defeated': 'assets/sounds/player-defeated.mp3',
             'up': 'assets/sounds/up.mp3',
             'down': 'assets/sounds/down.mp3',

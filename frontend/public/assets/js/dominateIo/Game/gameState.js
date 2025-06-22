@@ -1,5 +1,6 @@
-﻿import {NetPlayer} from "../Agents/netPlayer.js";
-import {NetOpponent} from "../Agents/netOponent.js";
+﻿import {Player} from "../Agents/player.js";
+import {NetPlayer} from "../Agents/netPlayer.js";
+import {Dominator} from "./dominator.js";
 
 export class GameState {
     constructor(cells, dominators) {
@@ -26,15 +27,16 @@ export class GameState {
         return newCells;
     }
 
-    static fromCells(netClient, cells, playersQueue, thisPlayerName) {
+    static fromCells(netClient, cells, playersQueue, thisPlayerName, playersInfo) {
         const dominators = [];
+        let i = 0;
         for (const player of playersQueue) {
-            if (player.name === thisPlayerName) {
-                dominators.push(new NetPlayer(player.name, netClient))
-            }
-            else {
-                dominators.push(new NetOpponent(player.name, netClient));
-            }
+            const playerInfo = playersInfo[player.name];
+            dominators.push(new Dominator(playerInfo.color,
+                                          player.name,
+                                    player.name === thisPlayerName ? new Player() : new NetPlayer(),
+                                          i));
+            i++;
         }
 
         cells.forEach(cell => {

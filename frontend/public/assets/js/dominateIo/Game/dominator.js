@@ -8,7 +8,7 @@ export class Dominator {
     /**
      * @param {string} color - Цвет доминтора.
      * @param {string} name - Цвет игрока.
-     * @param {BasicBot} agent - Агент, который представляет действия игрока
+     * @param {Agent} agent - Агент, который представляет действия игрока
      */
     constructor(color, name, agent, index) {
         this.color = color;
@@ -17,5 +17,6 @@ export class Dominator {
         this.ownedCells = new Set();
         this.agent = agent;
         this.index = index;
+        this.eliminated = false;
     }
 }

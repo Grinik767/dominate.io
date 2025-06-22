@@ -20,7 +20,8 @@ export class GameLogic extends EventTarget {
          * Закончена ли игра?
          * @returns {boolean} — Количество игроков <= 1?
          */
-        return this.state.dominators.length <= 1;
+        const activePlayers = this.state.dominators.filter(d => !d.eliminated);
+        return activePlayers.length <= 1;
     }
 
     canCapture(from, to) {
@@ -91,65 +92,6 @@ export class GameLogic extends EventTarget {
             dominator.agent.submitMove(new Move('upgrade', {q: viewCell.q, r: viewCell.r}));
         }
     }
-
-    _generateField() {
-        const allCells = new Map(); // Keyed by 'q,r,s'
-        for (let q = -this.radius; q <= this.radius; q++) {
-            for (
-                let r = Math.max(-this.radius, -q - this.radius);
-                r <= Math.min(this.radius, -q + this.radius);
-                r++
-            ) {
-                const s = -q - r;
-                const key = `${q},${r},${s}`;
-                const cell = new Cell(q, r, s, Math.random() < 0.2 ? BIG_SIZE : DEFAULT_SIZE);
-                if (Math.random() >= 0.2) {
-                    allCells.set(key, cell);
-                }
-            }
-        }
-
-        const visited = new Set();
-        let largestGroup = [];
-
-        const directions = [
-            [+1, -1, 0], [-1, +1, 0],
-            [+1, 0, -1], [-1, 0, +1],
-            [0, +1, -1], [0, -1, +1]
-        ];
-
-        for (const [key, startCell] of allCells) {
-            if (visited.has(key)) continue;
-
-            const queue = [startCell];
-            const group = [];
-            visited.add(key);
-
-            while (queue.length > 0) {
-                const current = queue.pop();
-                group.push(current);
-                const neighbors = directions.map(([dq, dr, ds]) => {
-                    const nq = current.q + dq;
-                    const nr = current.r + dr;
-                    const ns = current.s + ds;
-                    return allCells.get(`${nq},${nr},${ns}`);
-                }).filter(n => n && !visited.has(`${n.q},${n.r},${n.s}`));
-
-                for (const neighbor of neighbors) {
-                    visited.add(`${neighbor.q},${neighbor.r},${neighbor.s}`);
-                    queue.push(neighbor);
-                }
-            }
-
-            if (group.length > largestGroup.length) {
-                largestGroup = group;
-            }
-        }
-
-        return largestGroup;
-    }
-
-
     _trySelect(q, r) {
         /**
          * Выбрать клетку с координатами q, r, s = - q - r
@@ -282,40 +224,29 @@ export class GameLogic extends EventTarget {
         if (this.state.capturePhase) {
             this.state.currentDominator.influencePoints += this.state.currentDominator.ownedCells.size;
         } else {
-            this.state.currentDominatorIndex = (this.state.currentDominatorIndex + 1) % this.state.dominators.length;
+            const total = this.state.dominators.length;
+            do {
+                this.state.currentDominatorIndex = (this.state.currentDominatorIndex + 1) % total;
+            } while (this.state.dominators[this.state.currentDominatorIndex].eliminated);
         }
+
         this.state.capturePhase = !this.state.capturePhase;
         this.selected = null;
     }
 
     _eliminate(idx) {
-        /**
-         * Убрать игрока с индексом idx из игры
-         * @param {number} idx Индекс игрока, который выбывает из игры
-         */
-        // TODO: Лучше не удалять игрока, а просто когда будет переход на другого игрока делаться, то проверять, что
-        // у игрока есть клетки. Иначе скипать.
-        this.state.dominators.splice(idx, 1);
+        const dominator = this.state.dominators[idx];
+        dominator.eliminated = true;
+
         this.state.cells.forEach(c => {
-            if (c.owner !== null){
-                if (c.owner.index === idx) {
-                    c.owner = null;
-                }
+            if (c.owner && c.owner.index === idx) {
+                c.owner = null;
             }
         });
 
-        this.state.dominators.forEach((dominator) => {
-            if (dominator.index > idx){
-                dominator.index -= 1;
-            }
-        })
-
-        this.dispatchEvent(new CustomEvent('playerEliminated', {
-            detail: {index: idx}
-        }));
-        // После того как обновили индексы, нужно поправить currentPlayer
-        if (this.state.currentDominatorIndex >= idx) {
-            this.state.currentDominatorIndex = Math.max(0, this.state.currentDominatorIndex - 1);
+        // Обновим currentDominatorIndex, если текущий игрок был выкинут
+        if (this.state.currentDominatorIndex === idx) {
+            this._endPhase(); // Сразу передаём ход дальше
         }
     }
 

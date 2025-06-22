@@ -48,6 +48,6 @@ const ui = new UI(gameLogic);
     }
 
     gameLogic.dispatchEvent(new CustomEvent('gameOver', {
-        detail: {winner: gameLogic.state.dominators[0]}
+        detail: {winner: this.state.dominators.filter(d => !d.eliminated)[0]}
     }));
 })();

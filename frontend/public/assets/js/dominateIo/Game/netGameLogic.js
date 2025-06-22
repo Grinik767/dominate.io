@@ -1,13 +1,11 @@
-import {Cell} from "./cell.js";
-import {backendPreffix, directions, DEFAULT_SIZE, BIG_SIZE} from "../globals.js";
-import {Player} from "../Agents/player.js";
+import {backendPreffixWS, directions, DEFAULT_SIZE, BIG_SIZE} from "../globals.js";
 import {Move} from "./move.js";
-import {generateField} from "./field.js";
 
 export class NetGameLogic extends EventTarget {
 
     constructor(state, playerName) {
         super();
+        this.socket = null;
         this.selected = null;
         this.state = state;
         this.nicknameToPlayer = {};
@@ -16,6 +14,8 @@ export class NetGameLogic extends EventTarget {
         for (const dominator of this.state.dominators) {
             this.nicknameToPlayer[dominator.name] = dominator;
         }
+
+        this.connect();
     }
 
     get currentDominator() {
@@ -42,6 +42,7 @@ export class NetGameLogic extends EventTarget {
         if (!directions.some(d => d.q === dq && d.r === dr)) {
             return false;
         }
+
         return from.power > 1 && !this.state.currentDominator.ownedCells.has(`${to.q},${to.r}`);
     }
 
@@ -60,7 +61,7 @@ export class NetGameLogic extends EventTarget {
                 this._changeCell(move.moves);
                 break;
             case 'endPhase':
-                this._endPhase();
+                this._endPhase(move.data.nextPlayer);
                 break;
         }
 
@@ -77,10 +78,13 @@ export class NetGameLogic extends EventTarget {
          * Обработчик события нажатия на хекс.
          * @param {ViewCell} cell - Ячейка, на которую кликнули
          */
+
         // Если текущий доминтор не игрок(бот или сетевой игрок), ничего не делаем
-        if (!(this.state.currentDominator.agent instanceof Player)) {
+        if (this.state.currentDominator.name !== this.playerName) {
+            console.log(this.state.currentDominator.name, this.playerName);
             return;
         }
+
         const dominator = this.state.currentDominator;
         const key = `${viewCell.q},${viewCell.r}`;
 
@@ -120,7 +124,6 @@ export class NetGameLogic extends EventTarget {
         const ceilTo = this.state.cells.find(c => c.q === to.q && c.r === to.r);
         if (!ceilFrom || !ceilTo) return;
 
-        // Кажется ещё лучше добавить проверку на мощность.
         if (!this.canCapture(ceilFrom, ceilTo)) return;
 
         const key = `${to.q},${to.r}`;
@@ -132,6 +135,8 @@ export class NetGameLogic extends EventTarget {
 
             this.state.currentDominator.ownedCells.add(key);
             this.selected = {q: to.q, r: to.r};
+
+            this.submitMakeMove([ceilTo.toDictionary(), ceilFrom.toDictionary()]);
             return;
         }
 
@@ -141,21 +146,24 @@ export class NetGameLogic extends EventTarget {
             if (Math.random() < chance) {
                 if (!this.state.dominators[oldIndex].ownedCells.has(key))
                     throw new Error(`${this.state.dominators[oldIndex].name}[${this.state.dominators[oldIndex].index}] don't have ${key}`);
+
                 this.state.dominators[oldIndex].ownedCells.delete(key);
                 ceilTo.owner = this.state.currentDominator;
                 ceilTo.power = Math.max(ceilFrom.power - ceilTo.power, 1);
                 ceilFrom.power = 1;
                 this.state.currentDominator.ownedCells.add(key);
-
                 this.selected = {q: to.q, r: to.r};
 
                 if (this.state.dominators[oldIndex].ownedCells.size === 0) {
                     this._eliminate(oldIndex);
                 }
+
             } else {
                 ceilFrom.power = 1;
                 ceilTo.power = Math.max(ceilTo.power - ceilFrom.power, 1);
             }
+
+            this.submitMakeMove([ceilTo.toDictionary(), ceilFrom.toDictionary()]);
         }
     }
 
@@ -178,6 +186,8 @@ export class NetGameLogic extends EventTarget {
             cell.power++;
             dominator.influencePoints--;
         }
+
+        this.submitMakeMove([cell]);
         return true;
     }
 
@@ -198,18 +208,13 @@ export class NetGameLogic extends EventTarget {
 
             const c = upg[Math.floor(Math.random() * upg.length)];
 
-            // Submit a move
             dominator.agent.submitMove(new Move('upgrade', { q: c.q, r: c.r }));
 
-            // TODO: РАЗОБРАТЬСЯ КАК РАБОТАЕТ.
-            // Wait for main loop to process the move and come back to getMove()
             await new Promise(resolve => {
-                // Hook into the agent to resume autoUpgrade after the move is processed
                 const originalGetMove = dominator.agent.getMove.bind(dominator.agent);
                 dominator.agent.getMove = async (state) => {
-                    // Restore original getMove for next call
                     dominator.agent.getMove = originalGetMove;
-                    resolve(); // Continue autoUpgrade
+                    resolve();
                     return await originalGetMove(state); // Proceed with normal behavior
                 };
             });
@@ -220,24 +225,27 @@ export class NetGameLogic extends EventTarget {
 
     }
 
-    _endPhase() {
+    _endPhase(nextDominatorNickname) {
         /**
          * Выполняет логику окончания разных фаз
          */
         if (this.state.capturePhase) {
             this.state.currentDominator.influencePoints += this.state.currentDominator.ownedCells.size;
-        } else {
-            const total = this.state.dominators.length;
-            do {
-                this.state.currentDominatorIndex = (this.state.currentDominatorIndex + 1) % total;
-            } while (this.state.dominators[this.state.currentDominatorIndex].eliminated);
         }
+
+        const total = this.state.dominators.length;
+        while (this.state.dominators[this.state.currentDominatorIndex].name !== nextDominatorNickname) {
+            if (this.state.dominators[this.state.currentDominatorIndex].eliminated) continue;
+            this.state.currentDominatorIndex = (this.state.currentDominatorIndex + 1) % total;
+        }
+
+        this.submitEndPhase(this.state.capturePhase);
 
         this.state.capturePhase = !this.state.capturePhase;
         this.selected = null;
     }
 
-    _eliminate(idx) {
+dx) {
         const dominator = this.state.dominators[idx];
         dominator.eliminated = true;
 
@@ -246,11 +254,6 @@ export class NetGameLogic extends EventTarget {
                 c.owner = null;
             }
         });
-
-        // Обновим currentDominatorIndex, если текущий игрок был выкинут
-        if (this.state.currentDominatorIndex === idx) {
-            this._endPhase(); // Сразу передаём ход дальше
-        }
     }
 
     _getCaptureChance(d) {
@@ -266,8 +269,30 @@ export class NetGameLogic extends EventTarget {
         return 1;
     }
 
+    submitMakeMove(moves) {
+        if (!this.socket) throw new Error("Socket not initialized");
+
+        this.socket.send(JSON.stringify({
+            type: "MakeMove",
+            moves: moves,
+        }));
+    }
+
+    submitEndPhase(isCapturePhase) {
+        if (isCapturePhase) {
+            this.socket.send(JSON.stringify({
+                type: "PhaseEnd",
+            }))
+        }
+        else {
+            this.socket.send(JSON.stringify({
+                type: "TurnEnd",
+            }))
+        }
+    }
+
     connect() {
-        this.socket = new WebSocket(backendPreffix + `/Game?code${this.code}&nickname=${this.netPlayer.name}`);
+        this.socket = new WebSocket(backendPreffixWS + `/Game?code${this.code}&nickname=${this.netPlayer.name}`);
 
         this.socket.onopen = () => {
             console.log("WebSocket connected in NetGameLogic");
@@ -276,16 +301,19 @@ export class NetGameLogic extends EventTarget {
         this.socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
 
+            if (data.nickname === this.playerName) return;
+
             if (data.type === "MoveMade") {
                 const nickname = data.nickname;
                 if (nickname === this.playerName) return;
                 this.nicknameToPlayer[nickname].agent.submitMove(new Move('changeCell', data.moves));
             }
-            else if (data.type === "PhaseEnd") {
-
+            else if (data.type === "PhaseEnd" || data.type === "TurnEnd") {
+                this.state.currentDominator.agent.submitMove(new Move('endPhase', {nextPlayer: data.nextPlayer}));
             }
-            else if (data.type === "TurnEnd") {
-
+            else if (data.type === "Leave") {
+                const dominator = this.nicknameToPlayer[data.nickname];
+                this._eliminate(dominator.index);
             }
         };
 
@@ -297,9 +325,5 @@ export class NetGameLogic extends EventTarget {
         this.socket.onerror = (error) => {
             window.location.href = "/error.html";
         };
-    }
-
-    _send(data) {
-        this.socket.send(JSON.stringify(data));
     }
 }

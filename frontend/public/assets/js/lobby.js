@@ -1,9 +1,9 @@
 ﻿import {backendPreffixWS} from "./dominateIo/globals.js";
 
 const playerName = localStorage.getItem('playerName');
+const code = params.get('code');
 let users;
 let socket;
-
 document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
@@ -89,12 +89,20 @@ function setUpConnection(code) {
                     }
                     break;
                 case 'GameStarted':
-                    // Start game
+                    sessionStorage.setItem('code', code);
+                    sessionStorage.setItem('gameInfo', sessionStorage.getItem('lobbyInfo'));
+                    const userDict = users.reduce((acc, user) => {
+                        const { name, color, isReady } = user;
+                        acc[name] = { 'Color' : color };
+                        return acc;
+                    }, {});
+                    sessionStorage.setItem('playerName', userDict);
+                    window.location.href = '/onlineGame.html';
                     break;
                 case 'PlayerLeft':
                     console.log("playerLeft");
                     if (data.nickname !== playerName) {
-                        const index = users.findIndex(u => u.name === name);
+                        const index = users.findIndex(u => u.name === data.nickname);
                         if (index !== -1) {
                             users.splice(index, 1);
                             renderLobbyUsers();
@@ -126,6 +134,7 @@ function closeConnection() {
         type: 'Leave'
     };
     socket.send(JSON.stringify(leaveMessage));
+    socket.close();
 }
 
 function renderLobbyUsers() {
@@ -189,7 +198,7 @@ function toggleReadyStatusFromNetClient(name, isReady) {
 }
 
 function leaveLobby() {
+    console.log("leaveLobby");
     closeConnection();
-    socket.close();
-    window.location.href = `/index.html`;
+    // window.location.href = `/index.html`;
 }

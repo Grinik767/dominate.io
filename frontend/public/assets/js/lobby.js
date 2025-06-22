@@ -91,13 +91,17 @@ function setUpConnection(code) {
                     break;
                 case 'GameStarted':
                     sessionStorage.setItem('code', code);
-                    sessionStorage.setItem('gameInfo', sessionStorage.getItem('lobbyInfo'));
-                    const userDict = users.reduce((acc, user) => {
-                        const { name, color, isReady } = user;
-                        acc[name] = { 'Color' : color };
+                    sessionStorage.setItem('gameInfo', JSON.stringify(data));
+
+                    const players = data.playersQueue.reduce((acc, name) => {
+                        const user = users.find(u => u.name === name);
+                        if (user) {
+                            acc[name] = { "Color" : user.color };
+                        }
                         return acc;
                     }, {});
-                    sessionStorage.setItem('playerName', userDict);
+                    sessionStorage.setItem('players', JSON.stringify(players));
+                    // sessionStorage.removeItem('lobbyInfo');
                     window.location.href = '/onlineGame.html';
                     break;
                 case 'PlayerLeft':

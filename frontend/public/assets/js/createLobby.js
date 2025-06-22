@@ -64,7 +64,7 @@ async function createLobby() {
         const cells = field.toCells();
         const LobbyInfo = {
             playersCount: playerCount,
-            field: field
+            field: JSON.stringify(cells)
         }
 
         const response = await fetch(backendPreffix + '/Lobby', {

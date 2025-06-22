@@ -58,22 +58,18 @@ function updateAvailability() {
 async function createLobby() {
     try {
         console.log("Creating Lobby");
-        const dominators = [
-            {ownedCells: new Set(), id: 0},
-            {ownedCells: new Set(), id: 1},
-            {ownedCells: new Set(), id: 2},
-            {ownedCells: new Set(), id: 3},
-            {ownedCells: new Set(), id: 4},
-            {ownedCells: new Set(), id: 5},
-        ].slice(0, playerCount);
-        console.log(dominators, playerCount);
+        const dominators = Array.from({length: playerCount},
+            (_, i) => ({name: i + 1, ownedCells: new Set()}))
+        const field = generateField(3, dominators);
+        const cells = field.toCells();
+        console.log(cells)
 
         const response = await fetch(backendPreffix + '/Lobby', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ PlayersCount: playerCount, field: generateField(5, dominators).cells.forEach(cell => cell.owner)})
+            body: JSON.stringify({ PlayersCount: playerCount, field: cells})
         });
 
         if (!response.ok) {

@@ -5,7 +5,6 @@
  */
 export class Dominator {
 
-    // TODO: поправить комментарии
     /**
      * @param {string} color - Цвет доминтора.
      * @param {string} name - Цвет игрока.

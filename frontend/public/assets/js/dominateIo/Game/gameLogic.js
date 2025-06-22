@@ -1,9 +1,8 @@
-import {GameState} from "./gameState.js";
 import {Cell} from "./cell.js";
 import {directions, DEFAULT_SIZE, BIG_SIZE} from "../globals.js";
 import {Player} from "../Agents/player.js";
 import {Move} from "./move.js";
-import {generateField} from "./field";
+import {generateField} from "./field.js";
 
 export class GameLogic extends EventTarget {
     constructor(radius, dominators) {

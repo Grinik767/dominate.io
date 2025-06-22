@@ -24,6 +24,11 @@ export function makeFadeIn() {
     // document.body.classList.remove('fade-out');
 }
 
+export function isValidPlayerName(playerName) {
+    const regex = /^[a-zA-Z0-9_-]{1,20}$/;
+    return regex.test(playerName);
+}
+
 export function emulateButtonClick(btn) {
     if (pressingButton)
         return;

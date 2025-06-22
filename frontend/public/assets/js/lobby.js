@@ -132,8 +132,9 @@ function setUpConnection(code) {
         });
 
     } catch (error) {
+        console.log(error.message);
         sessionStorage.setItem('errorMsg', error.message);
-        window.location.href = '/error.html';
+        //window.location.href = '/error.html';
     }
 }
 
@@ -159,10 +160,12 @@ function renderLobbyUsers() {
         userRow.appendChild(text);
 
         const indicator = document.createElement('span');
-        indicator.className = 'indicator ' + (user.ready ? 'ready' : 'not-ready');
-        userRow.appendChild(indicator);
+        indicator.className = 'indicator';
 
-        // indicator.classList.toggle('ready', user.isReady);
+        indicator.classList.toggle('ready', user.isReady);
+        indicator.classList.toggle('not-ready', !user.isReady);
+
+        userRow.appendChild(indicator);
 
         if (user.name === playerName) {
             userRow.classList.add('playerRow');

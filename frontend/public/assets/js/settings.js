@@ -1,6 +1,7 @@
-﻿import {makeFadeOut, generateName, makeFadeIn, emulateButtonClick} from "./utils.js";
+﻿import {makeFadeOut, generateName, makeFadeIn, emulateButtonClick, isValidPlayerName} from "./utils.js";
 const changeNameButton = document.querySelector('.btn');
 const inputField = document.querySelector('#nameInput');
+const errorMessage = document.querySelector('.errorMessage');
 
 document.addEventListener('DOMContentLoaded', () => {
     let playerName = localStorage.getItem('playerName');
@@ -14,8 +15,22 @@ document.addEventListener('DOMContentLoaded', () => {
     inputField.focus();
 
     changeNameButton.addEventListener('click', () => {
-        localStorage.setItem('playerName', inputField.value.trim());
+        if (isValidPlayerName(inputField.value.trim())) {
+            localStorage.setItem('playerName', inputField.value.trim());
+        } else {
+            inputField.classList.add('denied');
+            errorMessage.textContent = "Допустимый набор символов: A-Z1-9";
+            errorMessage.classList.add('visible');
+        }
     });
+
+
+    inputField.addEventListener('input', e => {
+        inputField.classList.remove('denied');
+        errorMessage.textContent = "";
+        errorMessage.classList.remove('visible');
+    })
+
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {

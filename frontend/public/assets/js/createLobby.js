@@ -14,7 +14,7 @@ const minusButton = document.querySelector('.minus');
 document.addEventListener("DOMContentLoaded", () => {
     countPlayersEl.textContent = playerCount.toString();
 
-plusButton.addEventListener("click", () => {
+    plusButton.addEventListener("click", () => {
         if (!plusButton.classList.contains('locked'))
             changeCountPlayers(1)
     });
@@ -60,16 +60,19 @@ async function createLobby() {
         console.log("Creating Lobby");
         const dominators = Array.from({length: playerCount},
             (_, i) => ({name: i, ownedCells: new Set()}))
-        const field = generateField(1, dominators);
+        const field = generateField(5, dominators);
         const cells = field.toCells();
-        console.log(JSON.stringify({ playersCount: playerCount, field: cells}))
+        const LobbyInfo = {
+            playersCount: playerCount,
+            field: field
+        }
 
         const response = await fetch(backendPreffix + '/Lobby', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ playersCount: playerCount, field: cells}),
+            body: JSON.stringify({playersCount: playerCount, field: cells}),
             credentials: "include",
         });
 
@@ -78,9 +81,10 @@ async function createLobby() {
         }
 
         const data = await response.json();
-        console.log("Lobby code:", data.code)
-        // window.location.href = `/lobby.html?code=${data.code}`;
+        sessionStorage.setItem('LobbyInfo', JSON.stringify(LobbyInfo));
+        window.location.href = `/lobby.html?code=${data.code}`;
     } catch (error) {
-        // window.location.href = '/error.html';
+        console.log(error);
+        window.location.href = '/error.html';
     }
 }

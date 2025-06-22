@@ -104,7 +104,7 @@ export class NetGameLogic extends EventTarget {
         /**
          * Выбрать клетку с координатами q, r, s = - q - r
          * @param {number} q Первая координата
-         * @param {number} e Вторая координата
+         * @param {number} r Вторая координата
          */
         if (!this.state.capturePhase)
             return;
@@ -163,7 +163,7 @@ export class NetGameLogic extends EventTarget {
         /**
          * Метод пытается улучшить клетку с координатами q, r, s = - q - r для текущего игрока
          * @param {number} q Первая координата
-         * @param {number} e Вторая координата
+         * @param {number} r Вторая координата
          */
         if (this.state.capturePhase)
             return false;

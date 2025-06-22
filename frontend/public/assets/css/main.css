@@ -76,6 +76,7 @@ p {
     color: var(--green-color);
 }
 
+
 .btn:active {
     background-color: var(--gray-color);
 }

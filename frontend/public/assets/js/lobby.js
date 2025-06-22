@@ -119,8 +119,6 @@ function setUpConnection(code) {
                         }
                     }
                     break;
-                case 'Error':
-                    throw Error(data.message);
                 default:
                     console.warn('Unknown message type:', data.type);
                     console.log(data);
@@ -129,7 +127,7 @@ function setUpConnection(code) {
 
         socket.addEventListener('error', (err) => {
             console.error('WebSocket error:', err);
-            sessionStorage.setItem('errorMsg', 'Не удалось установить соединение с сервером');
+            sessionStorage.setItem('errorMsg', err.message);
             window.location.href = '/error.html';
         });
 
@@ -164,7 +162,7 @@ function renderLobbyUsers() {
         indicator.className = 'indicator ' + (user.ready ? 'ready' : 'not-ready');
         userRow.appendChild(indicator);
 
-        indicator.classList.toggle('ready', user.isReady);
+        // indicator.classList.toggle('ready', user.isReady);
 
         if (user.name === playerName) {
             userRow.classList.add('playerRow');
@@ -212,7 +210,7 @@ function toggleReadyStatusFromNetClient(name, isReady) {
 function leaveLobby() {
     console.log("leaveLobby");
     closeConnection();
-    // window.location.href = `/index.html`;
+    window.location.href = `/index.html`;
 }
 
 document.addEventListener('keydown', (e) => {

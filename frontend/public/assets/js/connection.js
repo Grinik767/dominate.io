@@ -68,6 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
         errorMessage.classList.remove('visible');
     })
 
+    input.focus();
+
     makeFadeIn();
 });
 

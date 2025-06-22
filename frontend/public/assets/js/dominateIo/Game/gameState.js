@@ -20,7 +20,6 @@ export class GameState {
         for (const cell of this.cells) {
             if (cell.owner && cell.owner !== -1){
                 cell.owner = cell.owner.index;
-                console.log(cell.owner)
             }
             else {
                 cell.owner = -1;
@@ -45,11 +44,17 @@ export class GameState {
         }
 
         cells.forEach(cell => {
-            if (cell.owner === -1) cell.owner = null;
-            if (cell.owner != null) {
-                cell.owner = dominators[cell.owner];
-                cell.owner.ownedCells.add(cell.key)
+            if (cell.owner.length === 0){
+                cell.owner = null;
+                return;
             }
+
+            dominators.forEach(dominator => {
+                if (dominator.name === cell.owner){
+                    cell.owner = dominator;
+                    cell.owner.ownedCells.add(cell.key)
+                }
+            })
         });
 
         return new GameState(cells, dominators);

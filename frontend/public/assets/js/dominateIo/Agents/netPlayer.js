@@ -1,61 +1,33 @@
-import { Player } from "./player.js";
+import {Agent} from "./agent.js";
 
 /**
- * A player that can queue multiple moves and keeps track of move history.
+ * Represents a human player agent who makes moves via the UI.
  */
-export class NetPlayer extends Player {
+export class NetPlayer extends Agent {
     constructor() {
         super();
-        this._moveQueue = [];
-        this._moveHistory = [];
-        this._waitingResolver = null;
+        this._resolve = null;
     }
 
     /**
-     * Overrides the base getMove to support queuing.
-     * @returns {Promise<Object>} The next move from the queue or waits for one.
+     * Called by the dominateIo loop. Returns a promise that resolves when the player makes a move.
+     * @returns {Promise<Object>} The move selected by the player.
      */
     async getMove(state) {
-        if (this._moveQueue.length > 0) {
-            const move = this._moveQueue.shift();
-            this._moveHistory.push(move);
-            return move;
-        }
-
         return new Promise((resolve) => {
-            this._waitingResolver = resolve;
+            this._resolveMove = resolve;
         });
     }
 
     /**
-     * Submit a move. If getMove is waiting, resolve it immediately.
-     * Otherwise, enqueue the move.
-     * @param {Move} move
+     * Called by the UI when the player selects a move.
+     * @param {Move} move - The move chosen by the player.
      */
     submitMove(move) {
-        if (this._waitingResolver) {
-            this._moveHistory.push(move);
-            this._waitingResolver(move);
-            this._waitingResolver = null;
-        } else {
-            this._moveQueue.push(move);
+        if (this._resolveMove) {
+            this._resolveMove(move);
+            this._resolveMove = null;
         }
     }
-
-    /**
-     * Returns the list of all submitted moves so far.
-     * @returns {Move[]}
-     */
-    getMoveHistory() {
-        return [...this._moveHistory];
-    }
-
-    /**
-     * Clear the history and queue
-     */
-    reset() {
-        this._moveQueue = [];
-        this._moveHistory = [];
-        this._waitingResolver = null;
-    }
 }
+

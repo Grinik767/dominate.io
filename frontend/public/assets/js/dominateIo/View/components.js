@@ -40,12 +40,10 @@ export class DominatorList {
 
     setDominators(dominators) {
         this.dominators = dominators;
-        console.log(dominators)
         this.render();
     }
 
     setCurrentPlayer(index) {
-        console.log(index);
         if (index >= 0 && index < this.dominators.length) {
             this.currentIndex = index;
             this.render();

@@ -17,7 +17,7 @@ export class Cell {
             r: this.r,
             s: this.s,
             power: this.power,
-            owner: this.owner,
+            owner: this.owner.name,
             size: this.size === BIG_SIZE,
         }
     }

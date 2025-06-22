@@ -47,7 +47,7 @@ for (let i = 0; i < bots; i++) {
 
 const gameLogic = new GameLogic(fieldSize, dominators);
 const borderRenderer = new FieldRenderer(gameLogic.state, gameLogic.onCellClick.bind(gameLogic));
-const ui = new UI(gameLogic);
+const ui = new UI(gameLogic, {type: "endPhase"});
 
 (async function mainLoop() {
     while (!gameLogic.isOver()) {
@@ -58,6 +58,6 @@ const ui = new UI(gameLogic);
     }
 
     gameLogic.dispatchEvent(new CustomEvent('gameOver', {
-        detail: {winner: this.state.dominators.filter(d => !d.eliminated)[0]}
+        detail: {winner: gameLogic.state.dominators.filter(d => !d.eliminated)[0]}
     }));
 })();

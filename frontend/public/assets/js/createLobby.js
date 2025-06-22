@@ -59,26 +59,26 @@ async function createLobby() {
     try {
         console.log("Creating Lobby");
         const dominators = Array.from({length: playerCount},
-            (_, i) => ({name: i + 1, ownedCells: new Set()}))
-        const field = generateField(3, dominators);
+            (_, i) => ({name: i, ownedCells: new Set()}))
+        const field = generateField(1, dominators);
         const cells = field.toCells();
-        console.log(cells)
+        console.log(JSON.stringify({ playersCount: playerCount, field: cells}))
 
         const response = await fetch(backendPreffix + '/Lobby', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ PlayersCount: playerCount, field: cells})
+            body: JSON.stringify({ playersCount: playerCount, field: cells}),
+            credentials: "include",
         });
 
         if (!response.ok) {
-            console.log(response)
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log(data)
+        console.log("Lobby code:", data.code)
         // window.location.href = `/lobby.html?code=${data.code}`;
     } catch (error) {
         // window.location.href = '/error.html';

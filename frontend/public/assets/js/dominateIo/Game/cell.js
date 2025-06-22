@@ -8,4 +8,8 @@
         this.owner = null;
         this.power = 0;
     }
+
+    get key() {
+        return `${this.q},${this.r}`;
+    }
 }

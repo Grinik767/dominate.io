@@ -1,6 +1,7 @@
 ﻿import {Player} from "../Agents/player.js";
 import {NetPlayer} from "../Agents/netPlayer.js";
 import {Dominator} from "./dominator.js";
+import {BIG_SIZE} from "../globals.js";
 
 export class GameState {
     constructor(cells, dominators) {
@@ -17,30 +18,37 @@ export class GameState {
     toCells() {
         const newCells = [];
         for (const cell of this.cells) {
-            if (cell.owner){
-                console.log(cell)
-                cell.owner = cell.owner.name;
+            if (cell.owner && cell.owner !== -1){
+                cell.owner = cell.owner.index;
             }
+            else {
+                cell.owner = -1;
+            }
+            cell.size = cell.size === BIG_SIZE;
             newCells.push(cell);
         }
 
         return newCells;
     }
 
-    static fromCells(netClient, cells, playersQueue, thisPlayerName, playersInfo) {
+    static fromCells(cells, playersQueue, thisPlayerName, playersInfo) {
         const dominators = [];
         let i = 0;
         for (const player of playersQueue) {
-            const playerInfo = playersInfo[player.name];
-            dominators.push(new Dominator(playerInfo.color,
-                                          player.name,
-                                    player.name === thisPlayerName ? new Player() : new NetPlayer(),
+            const playerInfo = playersInfo[player];
+            dominators.push(new Dominator(playerInfo.Color,
+                                          player,
+                                    player === thisPlayerName ? new Player() : new NetPlayer(),
                                           i));
             i++;
         }
 
         cells.forEach(cell => {
-            cell.owner = dominators[playersQueue.find(cell.owner)]
+            if (cell.owner === -1) cell.owner = null;
+            if (cell.owner != null) {
+                cell.owner = dominators[cell.owner];
+                cell.owner.ownedCells.add(cell.key)
+            }
         });
 
         return new GameState(cells, dominators);

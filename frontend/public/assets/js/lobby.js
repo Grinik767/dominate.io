@@ -1,23 +1,18 @@
 ﻿const playerName = localStorage.getItem('playerName');
-const sessionId = sessionStorage.getItem('sessionId');
+
 let lobbyInfo = {}
 
 document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
 
-    if (!sessionId) {
-        sessionStorage.setItem('errorMsg', 'Отсутствует ID лобби');
-        window.location.href = '/error.html';
-        return;
-    }
     if (!playerName) {
         sessionStorage.setItem('errorMsg', 'Отсутствует никнейм игрока')
         window.location.href = '/error.html';
         return;
     }
 
-    setUpConnection(sessionId, code);
+    setUpConnection(code);
 });
 
 document.getElementById('readyButton').addEventListener('click', toggleReadyStatus)
@@ -25,28 +20,7 @@ document.getElementById('leaveButton').addEventListener('click', leaveLobby)
 
 
 function setUpConnection(sessionId, code) {
-    fetch(`/api/lobby?code=${code}`)
-        .then(res => {
-            if (res.ok) {
-                return res.json();
-            }
-            throw new Error('Ошибка соединения');
-        })
-        .then(lobInfo => {
-            lobbyInfo = lobInfo;
 
-            const player = { name: playerName, ready: false };
-            lobbyInfo.users.push(player);
-
-            console.log(lobbyInfo);
-
-            renderLobbyUsers(lobbyInfo);
-            renderLobbyCode(code);
-        })
-        .catch(err => {
-            sessionStorage.setItem('errorMsg', err);
-            window.location.href = '/error.html';
-        });
 }
 
 function renderLobbyUsers(lobbyInfo){

@@ -1,4 +1,4 @@
-﻿import {backendPreffix} from "./dominateIo/globals";
+﻿import {backendPreffix} from "./dominateIo/globals.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const button = document.querySelector('.btn');

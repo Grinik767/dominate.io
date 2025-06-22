@@ -5,6 +5,7 @@ import {Move} from "./move.js";
 import {generateField} from "./field.js";
 
 export class GameLogic extends EventTarget {
+
     constructor(radius, dominators) {
         super();
         this.selected = null;
@@ -48,9 +49,6 @@ export class GameLogic extends EventTarget {
                 break;
             case 'upgrade':
                 this._tryUpgrade(move.data.q, move.data.r);
-                break;
-            case 'changeCell':
-                this._changeCell(move.data.q, move.data.r, move.data.s, move.data.power, move.data.owner);
                 break;
             case 'endPhase':
                 this._endPhase();

@@ -1,47 +1,37 @@
-import {GameLogic} from './Game/gameLogic.js';
-import {Dominator} from './Game/dominator.js';
-import {getRandomColors} from './globals.js';
-
-import {Player} from './Agents/player.js';
-import {NetPlayer} from './Agents/netPlayer.js';
+import {NetGameLogic} from './Game/netGameLogic.js';
 
 import {FieldRenderer} from './View/fieldRenderer.js';
 import {UI} from "./View/ui.js";
+import {GameState} from "./Game/gameState.js";
+import {Cell} from "./Game/cell.js";
+import {BIG_SIZE, DEFAULT_SIZE} from "./globals.js";
 
-const params = new URLSearchParams(window.location.search);
-const lobbyCode = params.get('code');
-const playersCount = parseInt(params.get('playersCount'));
+const thisPlayerName = localStorage.getItem('playerName');
+const playersInfo = JSON.parse(localStorage.getItem("players"));
+const gameInfo = JSON.parse(localStorage.getItem("gameInfo"));
+const state = GameState.fromCells(
+    gameInfo.field.map(cell => {
+        const newCell = new Cell(cell.q, cell.r, cell.s, cell.size ? BIG_SIZE : DEFAULT_SIZE)
+        newCell.owner = cell.owner;
+        return newCell;
+    }),
+    gameInfo.playersQueue,
+    thisPlayerName,
+    playersInfo);
 
-const colors = getRandomColors(players + bots);
-
-let dominators = []
-for (let i = 0; i < players; i++) {
-    dominators.push(new Dominator(colors[i], `Player ${i}`, new Player(), i));
-}
-
-for (let i = 0; i < bots; i++) {
-    let agent = new BasicBot();
-    let name = 'Bot'
-    if (level === 2) {
-        agent = new AggressiveBot();
-        name = 'Aggressive Bot'
-    }
-    dominators.push(new Dominator(colors[i + players], `${name} ${i}`, agent, i + players));
-}
-
-const gameLogic = new GameLogic(fieldSize, dominators);
-const borderRenderer = new FieldRenderer(gameLogic.state, gameLogic.onCellClick.bind(gameLogic));
-const ui = new UI(gameLogic);
+const netGameLogic = new NetGameLogic(code, state);
+const borderRenderer = new FieldRenderer(netGameLogic.state, netGameLogic.onCellClick.bind(netGameLogic));
+const ui = new UI(netGameLogic);
 
 (async function mainLoop() {
-    while (!gameLogic.isOver()) {
-        const move = await gameLogic.currentDominator.agent.getMove(gameLogic.state);
-        gameLogic.makeMove(move);
-        borderRenderer.update(gameLogic.state, gameLogic.selected);
-        ui.update(gameLogic);
+    while (!netGameLogic.isOver()) {
+        const move = await netGameLogic.currentDominator.agent.getMove(netGameLogic.state);
+        netGameLogic.makeMove(move);
+        borderRenderer.update(netGameLogic.state, netGameLogic.selected);
+        ui.update(netGameLogic);
     }
 
-    gameLogic.dispatchEvent(new CustomEvent('gameOver', {
-        detail: {winner: gameLogic.state.dominators[0]}
+    netGameLogic.dispatchEvent(new CustomEvent('gameOver', {
+        detail: {winner: this.state.dominators.filter(d => !d.eliminated)[0]}
     }));
 })();

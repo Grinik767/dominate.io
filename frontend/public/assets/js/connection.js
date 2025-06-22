@@ -1,4 +1,6 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
+﻿import {backendPreffix} from "./dominateIo/globals";
+
+document.addEventListener('DOMContentLoaded', () => {
     const button = document.querySelector('.btn');
     const input = document.querySelector('.inp');
     const errorMessage = document.querySelector('.errorMessage');
@@ -12,28 +14,23 @@
             return;
         }
 
-        fetch('/api/lobby/connect', {
-            method: 'POST',
+        fetch(backendPreffix + `/Lobby/${code}`, {
+            method: 'GET',
             headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ code })
+                'Accept': 'application/json'
+            }
         })
             .then(async response => {
+                const data = await response.json().catch(() => null);
+
                 if (response.ok) {
-                    return response.json();
+                    if (data?.isExist === false) {
+                        throw new Error('Лобби не найдено');
+                    }
+                    return data;
                 }
 
-                const errorData = await response.json().catch(() => null);
-                const errorMsg = errorData?.errorMsg || 'Неизвестная ошибка соединения';
-
-                if (response.status === 404) {
-                    throw new Error('Лобби не найдено');
-                }
-                if (response.status === 405) {
-                    throw new Error(errorMsg);
-                }
-
+                const errorMsg = data?.errorMsg || 'Неизвестная ошибка соединения';
                 throw new Error(errorMsg);
             })
             .then(data => {

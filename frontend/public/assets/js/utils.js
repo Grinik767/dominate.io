@@ -1,24 +1,18 @@
-﻿function generateName(){
+﻿export function generateName(){
     return "Player" + Math.floor(Math.random()*10000000);
 }
 
-function getHexNeighbors(index, gridSize) {
-    const row = Math.floor(index / gridSize);
-    const col = index % gridSize;
-    const even = row % 2 === 0;
 
-    const offsets = even
-        ? [[-1, 0], [-1, 1], [0, -1], [0, 1], [1, 0], [1, 1]]
-        : [[-1, -1], [-1, 0], [0, -1], [0, 1], [1, -1], [1, 0]];
+export function makeFadeOut(toPage = 'index.html') {
+    document.body.classList.remove('loaded');
+    document.body.classList.add('fade-out');
+    setTimeout(() => {
+        window.location.href = toPage;
+    }, 150);
+}
 
-    const neighbors = offsets.map(([dr, dc]) => {
-        const r = row + dr;
-        const c = col + dc;
-        if (r >= 0 && r < gridSize && c >= 0 && c < gridSize) {
-            return r * gridSize + c;
-        }
-        return null;
-    }).filter(i => i !== null);
 
-    return neighbors;
+export function makeFadeIn() {
+    document.body.classList.remove('fade-out');
+    document.body.classList.add('loaded');
 }

@@ -1,8 +1,10 @@
 ﻿import {backendPreffixWS} from "./dominateIo/globals.js";
+import {makeFadeOut, makeFadeIn} from "./utils.js";
 
 const playerName = localStorage.getItem('playerName');
 const params = new URLSearchParams(window.location.search);
 const code = params.get('code');
+navigator.clipboard.writeText(code);
 let users;
 let socket;
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,14 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
     setUpConnection(code);
 
     renderLobbyCode(code);
+
+    makeFadeIn();
 });
 
 document.getElementById('readyButton').addEventListener('click', toggleReadyStatusOfPlayer)
 document.getElementById('leaveButton').addEventListener('click', leaveLobby)
 
-window.addEventListener("beforeunload", function (e) {
-    closeConnection();
-});
+// window.addEventListener("beforeunload", function (e) {
+//     closeConnection();
+// });
 
 document.getElementById("lobbyCode").addEventListener("click", function () {
     const h1 = this.querySelector("h1");
@@ -158,6 +162,8 @@ function renderLobbyUsers() {
         const indicator = document.createElement('span');
         indicator.className = 'indicator ' + (user.ready ? 'ready' : 'not-ready');
         userRow.appendChild(indicator);
+
+        indicator.classList.toggle('ready', user.isReady);
 
         if (user.name === playerName) {
             userRow.classList.add('playerRow');

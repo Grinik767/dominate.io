@@ -29,10 +29,20 @@ h1 {
 
 
 body {
+    opacity: 0;
     font-family: Inter, sans-serif;
     color: var(--text-color);
     background-color: var(--background-color);
     font-size: 28px;
+    transition: opacity 0.15s ease;
+}
+
+body.loaded {
+    opacity: 1;
+}
+
+body.fade-out {
+    opacity: 0;
 }
 
 p {

@@ -44,11 +44,12 @@
     transition: background-color 0.2s;
 }
 
-.menuItem:hover {
+
+.menuItem.selected {
     color: var(--green-color);
     font-weight: bold;
 }
 
-.menuItem:hover .indicator {
+.menuItem .indicator.selected {
     background-color: var(--green-color);
 }

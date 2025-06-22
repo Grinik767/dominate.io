@@ -1,5 +1,6 @@
 import {backendPreffix} from "./dominateIo/globals.js";
 import {generateField} from "./dominateIo/Game/field.js";
+import {makeFadeOut, makeFadeIn} from "./utils.js";
 
 let playerCount = 2;
 
@@ -12,6 +13,13 @@ const plusButton = document.querySelector('.plus');
 const minusButton = document.querySelector('.minus');
 
 document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            makeFadeOut();
+        }
+    });
+
     countPlayersEl.textContent = playerCount.toString();
 
     plusButton.addEventListener("click", () => {
@@ -28,6 +36,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const startGameButton = document.getElementById("createLobby");
     startGameButton.addEventListener("click", createLobby);
+
+    makeFadeIn();
 });
 
 function changeCountPlayers(delta) {

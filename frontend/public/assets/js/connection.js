@@ -1,6 +1,14 @@
 ﻿import {backendPreffix} from "./dominateIo/globals.js";
+import {makeFadeOut, makeFadeIn} from "./utils.js";
 
 document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            makeFadeOut();
+        }
+    });
+
     const button = document.querySelector('.btn');
     const input = document.querySelector('.inp');
     const errorMessage = document.querySelector('.errorMessage');
@@ -37,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 errorMessage.textContent = '';
                 errorMessage.classList.remove('visible');
                 input.classList.remove('denied');
-                sessionStorage.setItem('sessionId', data["sessionId"]);
 
                 window.location.href = `/lobby.html?code=${code}`;
             })
@@ -53,4 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
         errorMessage.textContent = "";
         errorMessage.classList.remove('visible');
     })
+
+    makeFadeIn();
 });

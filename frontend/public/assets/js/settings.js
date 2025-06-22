@@ -1,4 +1,5 @@
-﻿const changeNameButton = document.querySelector('.btn');
+﻿import {makeFadeOut, generateName, makeFadeIn} from "./utils.js";
+const changeNameButton = document.querySelector('.btn');
 const inputField = document.querySelector('#nameInput');
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -14,4 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
     changeNameButton.addEventListener('click', () => {
         localStorage.setItem('playerName', inputField.value.trim());
     });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            makeFadeOut();
+        }
+    });
+
+    makeFadeIn();
 });

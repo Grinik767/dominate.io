@@ -59,7 +59,7 @@ async function createLobby() {
     try {
         console.log("Creating Lobby");
         const dominators = Array.from({length: playerCount},
-            (_, i) => ({name: i, ownedCells: new Set()}))
+            (_, i) => ({index: i, ownedCells: new Set()}))
         const field = generateField(5, dominators);
         const cells = field.toCells();
         const LobbyInfo = {
@@ -72,7 +72,7 @@ async function createLobby() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({playersCount: playerCount, field: cells}),
+            body: JSON.stringify({ playersCount: playerCount, field: cells}),
             credentials: "include",
         });
 

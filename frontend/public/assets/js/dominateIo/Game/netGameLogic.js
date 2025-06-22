@@ -3,8 +3,9 @@ import {Move} from "./move.js";
 
 export class NetGameLogic extends EventTarget {
 
-    constructor(state, playerName) {
+    constructor(state, playerName, code) {
         super();
+        this.code = code;
         this.socket = null;
         this.selected = null;
         this.state = state;
@@ -245,7 +246,7 @@ export class NetGameLogic extends EventTarget {
         this.selected = null;
     }
 
-dx) {
+    _eliminate(idx) {
         const dominator = this.state.dominators[idx];
         dominator.eliminated = true;
 
@@ -292,7 +293,7 @@ dx) {
     }
 
     connect() {
-        this.socket = new WebSocket(backendPreffixWS + `/Game?code${this.code}&nickname=${this.netPlayer.name}`);
+        this.socket = new WebSocket(backendPreffixWS + `/Game?code${this.code}&nickname=${this.playerName}`);
 
         this.socket.onopen = () => {
             console.log("WebSocket connected in NetGameLogic");
@@ -319,11 +320,11 @@ dx) {
 
         this.socket.onclose = () => {
             console.warn("WebSocket disconnected");
-            window.location.href = "/index.html";
+            // window.location.href = "/index.html";
         };
 
         this.socket.onerror = (error) => {
-            window.location.href = "/error.html";
+            // window.location.href = "/error.html";
         };
     }
 }

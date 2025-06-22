@@ -6,10 +6,10 @@ import {GameState} from "./Game/gameState.js";
 import {Cell} from "./Game/cell.js";
 import {BIG_SIZE, DEFAULT_SIZE} from "./globals.js";
 
-const code = localStorage.getItem('code')
+const code = sessionStorage.getItem('code')
 const thisPlayerName = localStorage.getItem('playerName');
-const playersInfo = JSON.parse(localStorage.getItem("players"));
-const gameInfo = JSON.parse(localStorage.getItem("gameInfo"));
+const playersInfo = JSON.parse(sessionStorage.getItem("players"));
+const gameInfo = JSON.parse(sessionStorage.getItem("gameInfo"));
 
 const state = GameState.fromCells(
     gameInfo.field.map(cell => {
@@ -22,7 +22,7 @@ const state = GameState.fromCells(
     thisPlayerName,
     playersInfo);
 
-const netGameLogic = new NetGameLogic(state, thisPlayerName);
+const netGameLogic = new NetGameLogic(state, thisPlayerName, code);
 const borderRenderer = new FieldRenderer(netGameLogic.state, netGameLogic.onCellClick.bind(netGameLogic));
 const ui = new UI(netGameLogic);
 

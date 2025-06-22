@@ -59,7 +59,7 @@ async function createLobby() {
     try {
         console.log("Creating Lobby");
         const dominators = Array.from({length: playerCount},
-            (_, i) => ({name: i, ownedCells: new Set()}))
+            (_, i) => ({index: i, ownedCells: new Set()}))
         const field = generateField(1, dominators);
         const cells = field.toCells();
         console.log(JSON.stringify({ playersCount: playerCount, field: cells}))
@@ -79,8 +79,7 @@ async function createLobby() {
 
         const data = await response.json();
         console.log("Lobby code:", data.code)
-        // window.location.href = `/lobby.html?code=${data.code}`;
     } catch (error) {
-        // window.location.href = '/error.html';
+        window.location.href = '/error.html';
     }
 }

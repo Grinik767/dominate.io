@@ -1,16 +1,17 @@
-﻿import {makeFadeOut, generateName, makeFadeIn} from "./utils.js";
+﻿import {makeFadeOut, generateName, makeFadeIn, emulateButtonClick} from "./utils.js";
 const changeNameButton = document.querySelector('.btn');
 const inputField = document.querySelector('#nameInput');
 
 document.addEventListener('DOMContentLoaded', () => {
-    const input = document.querySelector('#nameInput');
     let playerName = localStorage.getItem('playerName');
 
     if (!playerName) {
         playerName = generateName(playerName);
         localStorage.setItem('playerName', playerName);
     }
-    input.value = playerName;
+    inputField.value = playerName;
+
+    inputField.focus();
 
     changeNameButton.addEventListener('click', () => {
         localStorage.setItem('playerName', inputField.value.trim());
@@ -20,6 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Escape') {
             e.preventDefault();
             makeFadeOut();
+        }
+        else if (e.key === 'Enter') {
+            emulateButtonClick(changeNameButton);
         }
     });
 

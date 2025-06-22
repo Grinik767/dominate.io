@@ -2,6 +2,9 @@
     font-weight: normal;
 }
 
+h3 {
+    font-size: 64px;
+}
 
 .menuWrapper {
     display: flex;

@@ -1,4 +1,4 @@
-﻿import {makeFadeOut, generateName, makeFadeIn} from "./utils.js";
+﻿import {makeFadeOut, generateName, makeFadeIn, emulateButtonClick} from "./utils.js";
 const changeNameButton = document.querySelector('.btn');
 const inputField = document.querySelector('#nameInput');
 
@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Escape') {
             e.preventDefault();
             makeFadeOut();
+        }
+        else if (e.key === 'Enter') {
+            emulateButtonClick(changeNameButton);
         }
     });
 

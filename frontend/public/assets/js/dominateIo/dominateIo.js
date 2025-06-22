@@ -1,6 +1,7 @@
 import {GameLogic} from './Game/gameLogic.js';
 import {Dominator} from './Game/dominator.js';
 import {getRandomColors} from './globals.js';
+import {makeFadeOut, makeFadeIn, emulateButtonClick} from "../utils.js";
 
 import {Player} from './Agents/player.js';
 import {BasicBot, AggressiveBot} from './Agents/bots.js';
@@ -8,6 +9,17 @@ import {BasicBot, AggressiveBot} from './Agents/bots.js';
 
 import {FieldRenderer} from './View/fieldRenderer.js';
 import {UI} from "./View/ui.js";
+
+document.addEventListener('DOMContentLoaded', () => {
+    makeFadeIn();
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            makeFadeOut('gameSettings.html');
+        }
+    });
+});
 
 const params = new URLSearchParams(window.location.search);
 const players = parseInt(params.get('players'), 10);
@@ -32,8 +44,6 @@ for (let i = 0; i < bots; i++) {
     dominators.push(new Dominator(colors[i + players], `${name} ${i}`, agent, i + players));
 }
 
-// TODO: Пофиксить шафл. Там проблема с переходм к след игроку
-// dominators = [...dominators].sort(() => 0.5 - Math.random());
 
 const gameLogic = new GameLogic(fieldSize, dominators);
 const borderRenderer = new FieldRenderer(gameLogic.state, gameLogic.onCellClick.bind(gameLogic));

@@ -1,5 +1,5 @@
-﻿import { AudioPlayer } from './audioManager.js';
-import {makeFadeOut, makeFadeIn} from "./utils.js";
+﻿import {AudioPlayer} from './audioManager.js';
+import {makeFadeOut, makeFadeIn, emulateButtonClick} from "./utils.js";
 
 let botLevels = ["Легко", "Средне", "Тяжело"];
 let botLevelsColors = ["green", "orange", "red"];
@@ -32,12 +32,17 @@ const buttonBotsMinus = document.querySelector('#botsCount .minus');
 const fieldSizePlus = document.querySelector('#fieldSize .plus');
 const fieldSizeMinus = document.querySelector('#fieldSize .minus');
 
+const startGameButton = document.querySelector('#startGame');
+
 
 document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             e.preventDefault();
-           makeFadeOut();
+            makeFadeOut();
+        }
+        else if (e.key === 'Enter') {
+            emulateButtonClick(startGameButton);
         }
     });
 
@@ -100,6 +105,8 @@ document.addEventListener("DOMContentLoaded", () => {
     })
 
     makeFadeIn();
+
+
 });
 
 function changeCountPlayers(delta) {
@@ -159,6 +166,7 @@ function updateAvailabilityFieldSizeButtons() {
         fieldSizeMinus.classList.add('locked');
     }
 }
+
 function changeBotsLevel() {
     levelBotEl.classList.remove(botLevelsColors[currentLevelIndex]);
     currentLevelIndex = (currentLevelIndex + 1) % 3;

@@ -1,5 +1,7 @@
 ﻿import {backendPreffix} from "./dominateIo/globals.js";
-import {makeFadeOut, makeFadeIn} from "./utils.js";
+import {makeFadeOut, makeFadeIn, emulateButtonClick} from "./utils.js";
+
+let buttonConnect;
 
 document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
@@ -9,11 +11,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const button = document.querySelector('.btn');
+    buttonConnect = document.querySelector('.btn');
     const input = document.querySelector('.inp');
     const errorMessage = document.querySelector('.errorMessage');
 
-    button.addEventListener('click', () => {
+    const lastConnectionCode = localStorage.getItem('lastConnectionCode');
+    if (lastConnectionCode != null) {
+        input.value = lastConnectionCode;
+    }
+
+    buttonConnect.addEventListener('click', () => {
         const code = input.value.trim();
         if (!code) {
             input.classList.add('denied');
@@ -62,4 +69,10 @@ document.addEventListener('DOMContentLoaded', () => {
     })
 
     makeFadeIn();
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        emulateButtonClick(buttonConnect);
+    }
 });

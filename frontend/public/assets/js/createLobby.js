@@ -1,8 +1,9 @@
 import {backendPreffix} from "./dominateIo/globals.js";
 import {generateField} from "./dominateIo/Game/field.js";
-import {makeFadeOut, makeFadeIn} from "./utils.js";
+import {makeFadeOut, makeFadeIn, emulateButtonClick} from "./utils.js";
 
 let playerCount = 2;
+let startGameButton;
 
 const minCountPlayers = 2;
 const maxCountPlayers = 4;
@@ -34,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateAvailability();
 
-    const startGameButton = document.getElementById("createLobby");
+    startGameButton = document.getElementById("createLobby");
     startGameButton.addEventListener("click", createLobby);
 
     makeFadeIn();
@@ -98,3 +99,9 @@ async function createLobby() {
         window.location.href = '/error.html';
     }
 }
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        emulateButtonClick(startGameButton);
+    }
+});

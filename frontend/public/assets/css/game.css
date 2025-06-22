@@ -204,3 +204,44 @@ button:hover {
     pointer-events: none;
     z-index: 1;
 }
+
+@media (max-width: 768px) {
+    #buttons {
+        flex-direction: column;
+        align-items: center;
+        position: static;
+        margin-top: 20px;
+    }
+
+    .button {
+        width: 80vw;
+        max-width: 300px;
+        font-size: 20px;
+        padding: 12px 0;
+        text-align: center;
+    }
+
+    #dominators-list {
+        position: static;
+        width: 90%;
+        max-width: 300px;
+        margin: 0 auto 20px auto;
+        right: auto;
+        top: auto;
+        background-color: var(--gray-color);
+        padding: 15px;
+        box-sizing: border-box;
+    }
+
+    .dominator {
+        text-align: left;
+    }
+
+    .dominator .name {
+        margin-bottom: 5px;
+    }
+
+    .dominator .color-box {
+        margin-left: 0;
+    }
+}

@@ -2,11 +2,18 @@
     position: absolute;
     right: 1em;
     top: 1em;
+
+    cursor: pointer;
 }
 
 .lobbyCode h1{
     margin: 0;
     font-weight: normal;
+    transition: 0.2s;
+}
+
+.lobbyCode h1:hover{
+    font-weight: bold;
 }
 
 .playerList{
@@ -21,9 +28,12 @@
     margin: 0 10px;
 }
 
+.userRow > p {
+    text-transform: none;
+}
+
 .playerRow > p{
     color: var(--green-color);
-    text-transform: none;
 }
 
 .indicator{
@@ -41,4 +51,20 @@
 
 .indicator.not-ready {
     background-color: var(--gray-color);
+}
+
+@keyframes clickEffect {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(0.95);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.click-animate {
+    animation: clickEffect 0.2s ease;
 }

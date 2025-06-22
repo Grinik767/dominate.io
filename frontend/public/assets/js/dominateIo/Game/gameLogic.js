@@ -2,6 +2,7 @@ import {Cell} from "./cell.js";
 import {directions, DEFAULT_SIZE, BIG_SIZE} from "../globals.js";
 import {Player} from "../Agents/player.js";
 import {Move} from "./move.js";
+import { AudioPlayer } from '../../audioManager.js';
 import {generateField} from "./field.js";
 
 export class GameLogic extends EventTarget {
@@ -74,10 +75,12 @@ export class GameLogic extends EventTarget {
         }
         const dominator = this.state.currentDominator;
         const key = `${viewCell.q},${viewCell.r}`;
+        let wrong = true;
 
         if (this.state.capturePhase) {
             if (dominator.ownedCells.has(key)) {
                 dominator.agent.submitMove(new Move('select', {q: viewCell.q, r: viewCell.r}));
+                wrong = false;
             } else if (this.selected) {
                 dominator.agent.submitMove(new Move(
                     'capture',
@@ -85,9 +88,18 @@ export class GameLogic extends EventTarget {
                         from: this.selected,
                         to: {q: viewCell.q, r: viewCell.r}
                     }));
+                wrong = false;
             }
         } else if (dominator.ownedCells.has(key)) {
             dominator.agent.submitMove(new Move('upgrade', {q: viewCell.q, r: viewCell.r}));
+            wrong = false;
+        }
+
+        if (wrong) {
+            AudioPlayer.playSound('wrong-click');
+        }
+        else {
+            AudioPlayer.playSound('click');
         }
     }
     _trySelect(q, r) {
@@ -246,6 +258,8 @@ export class GameLogic extends EventTarget {
         if (this.state.currentDominatorIndex === idx) {
             this._endPhase(); // Сразу передаём ход дальше
         }
+
+        AudioPlayer.playSound('player-defeated')
     }
 
     _getCaptureChance(d) {

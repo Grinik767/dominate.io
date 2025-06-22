@@ -1,34 +1,141 @@
-﻿const playerName = localStorage.getItem('playerName');
+﻿import {backendPreffixWS} from "./dominateIo/globals.js";
 
-let lobbyInfo = {}
+const playerName = localStorage.getItem('playerName');
+let users;
+let socket;
 
 document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
 
     if (!playerName) {
-        sessionStorage.setItem('errorMsg', 'Отсутствует никнейм игрока')
+        sessionStorage.setItem('errorMsg', 'Отсутствует никнейм игрока');
         window.location.href = '/error.html';
         return;
     }
 
     setUpConnection(code);
+
+    renderLobbyCode(code);
 });
 
-document.getElementById('readyButton').addEventListener('click', toggleReadyStatus)
+document.getElementById('readyButton').addEventListener('click', toggleReadyStatusOfPlayer)
 document.getElementById('leaveButton').addEventListener('click', leaveLobby)
 
+window.addEventListener("beforeunload", function (e) {
+    closeConnection();
+});
 
-function setUpConnection(sessionId, code) {
+document.getElementById("lobbyCode").addEventListener("click", function () {
+    const h1 = this.querySelector("h1");
+    const code = h1.innerText;
 
+    navigator.clipboard.writeText(code)
+        .then(() => {
+            h1.classList.remove("click-animate");
+            void h1.offsetWidth;
+            h1.classList.add("click-animate");
+        });
+});
+
+
+function setUpConnection(code) {
+    try {
+        const api = backendPreffixWS + "/Game?code=" + code + "&nickname=" + playerName;
+        socket = new WebSocket(api);
+
+        socket.addEventListener('open', () => {
+            const joinMessage = {
+                type: 'Join'
+            };
+
+            socket.send(JSON.stringify(joinMessage));
+
+            const getPlayersMessage = {
+                type: 'GetPlayers'
+            };
+
+            socket.send(JSON.stringify(getPlayersMessage));
+        });
+
+        socket.addEventListener('message', (event) => {
+            const data = JSON.parse(event.data);
+
+            switch (data.type) {
+                case 'SendPlayers':
+                    users = Object.entries(data.players).map(([name, details]) => ({
+                        name,
+                        color: details.Color,
+                        isReady: details.IsReady
+                    }));
+                    renderLobbyUsers();
+                    break;
+                case 'PlayerJoined':
+                    console.log("playerJoined");
+                    if (playerName !== data.nickname) {
+                        users.push({
+                            name: data.nickname,
+                            color: data.color,
+                            isReady: false
+                        })
+
+                        renderLobbyUsers();
+                    }
+                    break;
+                case 'Readiness':
+                    console.log("switchReadiness");
+                    if (data.nickname !== playerName) {
+                        toggleReadyStatusFromNetClient(data.nickname, data.isReady);
+                    }
+                    break;
+                case 'GameStarted':
+                    // Start game
+                    break;
+                case 'PlayerLeft':
+                    console.log("playerLeft");
+                    if (data.nickname !== playerName) {
+                        const index = users.findIndex(u => u.name === name);
+                        if (index !== -1) {
+                            users.splice(index, 1);
+                            renderLobbyUsers();
+                        }
+                    }
+                    break;
+                case 'Error':
+                    throw Error(data.message);
+                default:
+                    console.warn('Unknown message type:', data.type);
+                    console.log(data);
+            }
+        });
+
+        socket.addEventListener('error', (err) => {
+            console.error('WebSocket error:', err);
+            sessionStorage.setItem('errorMsg', 'Не удалось установить соединение с сервером');
+            window.location.href = '/error.html';
+        });
+
+    } catch (error) {
+        sessionStorage.setItem('errorMsg', error.message);
+        window.location.href = '/error.html';
+    }
 }
 
-function renderLobbyUsers(lobbyInfo){
-    const playerList = document.getElementById('playerList');
+function closeConnection() {
+    const leaveMessage = {
+        type: 'Leave'
+    };
+    socket.send(JSON.stringify(leaveMessage));
+}
 
-    lobbyInfo.users.forEach(user => {
+function renderLobbyUsers() {
+    const playerList = document.getElementById('playerList');
+    playerList.innerHTML = '';
+
+    users.forEach(user => {
         const userRow = document.createElement('div');
         userRow.className = 'userRow';
+        userRow.dataset.name = user.name;
 
         const text = document.createElement('p');
         text.innerText = user.name;
@@ -36,35 +143,53 @@ function renderLobbyUsers(lobbyInfo){
 
         const indicator = document.createElement('span');
         indicator.className = 'indicator ' + (user.ready ? 'ready' : 'not-ready');
-
         userRow.appendChild(indicator);
-        playerList.appendChild(userRow);
 
         if (user.name === playerName) {
             userRow.classList.add('playerRow');
-            userRow.id = "userRow";
         }
+
+        playerList.appendChild(userRow);
     });
 }
 
-function renderLobbyCode(code){
+function renderLobbyCode(code) {
     const lobbyCode = document.getElementById('lobbyCode');
     const h1 = lobbyCode.querySelector('h1');
     h1.textContent = code;
 }
 
-function toggleReadyStatus() {
-    const indicator = document.querySelector('#userRow span');
-    const user = lobbyInfo.users.find(user => user.name === playerName);
+function toggleReadyStatusOfPlayer() {
+    const user = users.find(u => u.name === playerName);
+    if (!user)
+        throw Error("Игрок отсутсвует в списках игроков лобби");
 
     user.ready = !user.ready;
 
-    if (indicator) {
-        indicator.classList.toggle('ready', user.ready);
-        indicator.classList.toggle('not-ready', !user.ready);
+    toggleReadyStatusUI(user.name, user.ready);
+
+    const switchReadinessMessage = {
+        type: 'SwitchReadiness'
+    };
+
+    socket.send(JSON.stringify(switchReadinessMessage));
+}
+
+function toggleReadyStatusUI(name, isReady) {
+    const userRow = document.querySelector(`.userRow[data-name="${name}"]`);
+    if (userRow) {
+        const indicator = userRow.querySelector('.indicator');
+        indicator.classList.toggle('ready', isReady);
+        indicator.classList.toggle('not-ready', !isReady);
     }
 }
 
+function toggleReadyStatusFromNetClient(name, isReady) {
+    toggleReadyStatusUI(name, isReady);
+}
+
 function leaveLobby() {
+    closeConnection();
+    socket.close();
     window.location.href = `/index.html`;
 }

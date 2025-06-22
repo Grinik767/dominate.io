@@ -1,4 +1,6 @@
-﻿let botLevels = ["Легко", "Средне", "Тяжело"];
+﻿import { AudioPlayer } from './audioManager.js';
+
+let botLevels = ["Легко", "Средне", "Тяжело"];
 let botLevelsColors = ["green", "orange", "red"];
 let currentLevelIndex = 1;
 let botsCount = 1;
@@ -38,32 +40,47 @@ document.addEventListener("DOMContentLoaded", () => {
     countPlayersEl.textContent = playerCount.toString();
     fieldSizeEl.textContent = fieldSize.toString();
 
-    levelBotEl.addEventListener("click", changeBotsLevel);
+    levelBotEl.addEventListener("click", () => {
+        changeBotsLevel()
+        AudioPlayer.playSound('click')
+    });
 
     buttonPlayersPlus.addEventListener("click", () => {
         if (!buttonPlayersPlus.classList.contains('locked'))
             changeCountPlayers(1)
+
+        AudioPlayer.playSound('up')
     });
     buttonPlayersMinus.addEventListener("click", () => {
         if (!buttonPlayersMinus.classList.contains('locked'))
             changeCountPlayers(-1)
+
+        AudioPlayer.playSound('down')
     });
     buttonBotsPlus.addEventListener("click", () => {
         if (!buttonBotsPlus.classList.contains('locked'))
             changeCountBots(1)
+
+        AudioPlayer.playSound('up')
     });
     buttonBotsMinus.addEventListener("click", () => {
         if (!buttonBotsMinus.classList.contains('locked'))
             changeCountBots(-1)
+
+        AudioPlayer.playSound('down')
     });
 
     fieldSizePlus.addEventListener("click", () => {
         if (!fieldSizePlus.classList.contains('locked'))
             changeFieldSize(1)
+
+        AudioPlayer.playSound('up')
     });
     fieldSizeMinus.addEventListener("click", () => {
         if (!fieldSizeMinus.classList.contains('locked'))
             changeFieldSize(-1);
+
+        AudioPlayer.playSound('down')
     });
 
     updateAvailabilityPlayerAndBotsButtons();

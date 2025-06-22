@@ -59,7 +59,10 @@ export class NetGameLogic extends EventTarget {
                 this._tryUpgrade(move.data.q, move.data.r);
                 break;
             case 'changeCells':
-                this._changeCell(move.moves);
+                this._changeCells(move.data);
+                break;
+            case 'submitEndPhase':
+                this.submitEndPhase();
                 break;
             case 'endPhase':
                 this._endPhase(move.data.nextPlayer);
@@ -188,7 +191,7 @@ export class NetGameLogic extends EventTarget {
             dominator.influencePoints--;
         }
 
-        this.submitMakeMove([cell]);
+        this.submitMakeMove([cell.toDictionary()]);
         return true;
     }
 
@@ -222,8 +225,28 @@ export class NetGameLogic extends EventTarget {
         }
     }
 
-    _changeCell() {
-
+    _changeCells(moves) {
+        console.log(moves, "moves in changeCell");
+        this.state.cells.forEach((cell) => {
+            moves.forEach((move) => {
+                if (move.q === cell.q && move.r === cell.r) {
+                    this.state.dominators.forEach((dominator) => {
+                        if (dominator.name === move.owner){
+                            const key = cell.key;
+                            if (cell.owner && cell.owner.name !== dominator.name){
+                                cell.owner.ownedCells.delete(key);
+                                if (cell.owner.ownedCells.size === 0) {
+                                    this._eliminate(cell.owner.index);
+                                }
+                            }
+                            cell.owner = dominator;
+                            dominator.ownedCells.add(key);
+                        }
+                    })
+                    cell.power = move.power;
+                }
+            })
+        })
     }
 
     _endPhase(nextDominatorNickname) {
@@ -235,12 +258,12 @@ export class NetGameLogic extends EventTarget {
         }
 
         const total = this.state.dominators.length;
-        while (this.state.dominators[this.state.currentDominatorIndex].name !== nextDominatorNickname) {
+        console.log(nextDominatorNickname, "from server")
+        while (this.state.currentDominator.name !== nextDominatorNickname) {
             if (this.state.dominators[this.state.currentDominatorIndex].eliminated) continue;
             this.state.currentDominatorIndex = (this.state.currentDominatorIndex + 1) % total;
+            console.log(this.currentDominator, "from here")
         }
-
-        this.submitEndPhase(this.state.capturePhase);
 
         this.state.capturePhase = !this.state.capturePhase;
         this.selected = null;
@@ -273,14 +296,19 @@ export class NetGameLogic extends EventTarget {
     submitMakeMove(moves) {
         if (!this.socket) throw new Error("Socket not initialized");
 
+        console.log(moves);
+        console.log(JSON.stringify({
+            type: "MakeMove",
+            moves: moves,
+        }))
         this.socket.send(JSON.stringify({
             type: "MakeMove",
             moves: moves,
         }));
     }
 
-    submitEndPhase(isCapturePhase) {
-        if (isCapturePhase) {
+    submitEndPhase() {
+        if (this.state.capturePhase) {
             this.socket.send(JSON.stringify({
                 type: "PhaseEnd",
             }))
@@ -293,37 +321,46 @@ export class NetGameLogic extends EventTarget {
     }
 
     connect() {
-        this.socket = new WebSocket(backendPreffixWS + `/Game?code${this.code}&nickname=${this.playerName}`);
+        this.socket = new WebSocket(backendPreffixWS + `/Game?code=${this.code}&nickname=${this.playerName}`);
 
         this.socket.onopen = () => {
             console.log("WebSocket connected in NetGameLogic");
+            this.socket.send(JSON.stringify({
+                type: "GetPlayers"
+            }))
         };
 
         this.socket.onmessage = (event) => {
+            console.log("event: ", event);
             const data = JSON.parse(event.data);
 
-            if (data.nickname === this.playerName) return;
-
             if (data.type === "MoveMade") {
+                if (data.nickname === this.playerName) return;
                 const nickname = data.nickname;
                 if (nickname === this.playerName) return;
-                this.nicknameToPlayer[nickname].agent.submitMove(new Move('changeCell', data.moves));
+                this.currentDominator.agent.submitMove(new Move('changeCells', data.moves));
             }
-            else if (data.type === "PhaseEnd" || data.type === "TurnEnd") {
+            else if (data.type === "PhaseEnd") {
+                this.state.currentDominator.agent.submitMove(new Move('endPhase', {nextPlayer: this.state.currentDominator.name}));
+            }
+            else if (data.type === "TurnEnd") {
                 this.state.currentDominator.agent.submitMove(new Move('endPhase', {nextPlayer: data.nextPlayer}));
             }
             else if (data.type === "Leave") {
+                if (data.nickname === this.playerName) return;
                 const dominator = this.nicknameToPlayer[data.nickname];
                 this._eliminate(dominator.index);
             }
         };
 
-        this.socket.onclose = () => {
+        this.socket.onclose = (message) => {
+            console.log(message)
             console.warn("WebSocket disconnected");
             // window.location.href = "/index.html";
         };
 
         this.socket.onerror = (error) => {
+            console.log("error: ", error);
             // window.location.href = "/error.html";
         };
     }

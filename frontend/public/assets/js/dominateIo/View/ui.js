@@ -14,7 +14,7 @@ export class UI {
         this.autoBtn.hide();
 
         this.phaseBtn.onClick(() => {
-            gameLogic.currentDominator.agent.submitMove({type: 'endPhase'});
+            gameLogic.currentDominator.agent.submitMove({type: 'submitEndPhase'});
         });
 
         this.autoBtn.onClick(gameLogic.autoUpgrade.bind(gameLogic));

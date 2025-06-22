@@ -5,6 +5,11 @@ import {UI} from "./View/ui.js";
 import {GameState} from "./Game/gameState.js";
 import {Cell} from "./Game/cell.js";
 import {BIG_SIZE, DEFAULT_SIZE} from "./globals.js";
+import {makeFadeIn} from "../utils.js";
+
+document.addEventListener('DOMContentLoaded', () => {
+    makeFadeIn();
+});
 
 const code = sessionStorage.getItem('code')
 const thisPlayerName = localStorage.getItem('playerName');
@@ -21,6 +26,7 @@ const state = GameState.fromCells(
     gameInfo.playersQueue,
     thisPlayerName,
     playersInfo);
+
 
 const netGameLogic = new NetGameLogic(state, thisPlayerName, code);
 const borderRenderer = new FieldRenderer(netGameLogic.state, netGameLogic.onCellClick.bind(netGameLogic));

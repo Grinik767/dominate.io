@@ -8,8 +8,10 @@
             'player-defeated': 'assets/sounds/player-defeated.mp3',
             'up': 'assets/sounds/up.mp3',
             'down': 'assets/sounds/down.mp3',
-            'main-menu': 'assets/sounds/main-menu.mp3',
-            'battle': 'assets/sounds/battle.mp3',
+            'error': 'assets/sounds/error.mp3',
+            'ready': 'assets/sounds/ready.mp3',
+            'connect': 'assets/sounds/connect.mp3',
+            'win': 'assets/sounds/win.mp3',
         };
 
         for (const [key, url] of Object.entries(soundFiles)) {

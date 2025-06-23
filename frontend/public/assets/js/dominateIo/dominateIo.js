@@ -9,6 +9,7 @@ import {BasicBot, AggressiveBot} from './Agents/bots.js';
 
 import {FieldRenderer} from './View/fieldRenderer.js';
 import {UI} from "./View/ui.js";
+import {AudioPlayer} from "../audioManager.js";
 
 document.addEventListener('DOMContentLoaded', () => {
     makeFadeIn();
@@ -57,6 +58,7 @@ const ui = new UI(gameLogic, {type: "endPhase"});
         ui.update(gameLogic);
     }
 
+    AudioPlayer.playSound("win");
     gameLogic.dispatchEvent(new CustomEvent('gameOver', {
         detail: {winner: gameLogic.state.dominators.filter(d => !d.eliminated)[0]}
     }));

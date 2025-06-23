@@ -1,5 +1,6 @@
 ﻿import {backendPreffixWS} from "./dominateIo/globals.js";
 import {makeFadeOut, makeFadeIn} from "./utils.js";
+import {AudioPlayer} from "./audioManager.js";
 
 const playerName = localStorage.getItem('playerName');
 const params = new URLSearchParams(window.location.search);
@@ -86,11 +87,13 @@ function setUpConnection(code) {
 
                         renderLobbyUsers();
                     }
+                    AudioPlayer.playSound("connect");
                     break;
                 case 'Readiness':
                     if (data.nickname !== playerName) {
                         toggleReadyStatusFromNetClient(data.nickname, data.isReady);
                     }
+                    AudioPlayer.playSound("ready");
                     break;
                 case 'GameStarted':
                     sessionStorage.setItem('code', code);

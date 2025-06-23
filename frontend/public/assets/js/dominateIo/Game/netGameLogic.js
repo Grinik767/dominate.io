@@ -1,5 +1,6 @@
-import {backendPreffixWS, directions, DEFAULT_SIZE, BIG_SIZE} from "../globals.js";
+import {backendPreffixWS, directions} from "../globals.js";
 import {Move} from "./move.js";
+import {AudioPlayer} from "../../audioManager.js";
 
 export class NetGameLogic extends EventTarget {
 
@@ -90,10 +91,12 @@ export class NetGameLogic extends EventTarget {
 
         const dominator = this.state.currentDominator;
         const key = `${viewCell.q},${viewCell.r}`;
+        let wrong = true;
 
         if (this.state.capturePhase) {
             if (dominator.ownedCells.has(key)) {
                 dominator.agent.submitMove(new Move('select', {q: viewCell.q, r: viewCell.r}));
+                wrong = false;
             } else if (this.selected) {
                 dominator.agent.submitMove(new Move(
                     'capture',
@@ -101,10 +104,18 @@ export class NetGameLogic extends EventTarget {
                         from: this.selected,
                         to: {q: viewCell.q, r: viewCell.r}
                     }));
+                wrong = false;
             }
         }
         else if (dominator.ownedCells.has(key)) {
             dominator.agent.submitMove(new Move('upgrade', {q: viewCell.q, r: viewCell.r}));
+        }
+
+        if (wrong) {
+            AudioPlayer.playSound('wrong-click');
+        }
+        else {
+            AudioPlayer.playSound('click');
         }
     }
     _trySelect(q, r) {

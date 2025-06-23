@@ -3,15 +3,15 @@
 
     init() {
         const soundFiles = {
-            'click': 'assets/sounds/click.mp3',
-            'wrong-click': 'assets/sounds/wrong-click.mp3',
-            'player-defeated': 'assets/sounds/player-defeated.mp3',
-            'up': 'assets/sounds/up.mp3',
-            'down': 'assets/sounds/down.mp3',
-            'error': 'assets/sounds/error.mp3',
-            'ready': 'assets/sounds/ready.mp3',
-            'connect': 'assets/sounds/connect.mp3',
-            'win': 'assets/sounds/win.mp3',
+            'click': '/assets/sounds/click.mp3',
+            'wrong-click': '/assets/sounds/wrong-click.mp3',
+            'player-defeated': '/assets/sounds/player-defeated.mp3',
+            'up': '/assets/sounds/up.mp3',
+            'down': '/assets/sounds/down.mp3',
+            'error': '/assets/sounds/error.mp3',
+            'ready': '/assets/sounds/ready.mp3',
+            'connect': '/assets/sounds/connect.mp3',
+            'win': '/assets/sounds/win.mp3',
         };
 
         for (const [key, url] of Object.entries(soundFiles)) {

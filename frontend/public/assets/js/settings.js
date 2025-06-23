@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     changeNameButton.addEventListener('click', () => {
         if (isValidPlayerName(inputField.value.trim())) {
             localStorage.setItem('playerName', inputField.value.trim());
+            window.location.href="index.html";
         } else {
             inputField.classList.add('denied');
             errorMessage.textContent = "Допустимый набор символов: A-Z1-9";

@@ -1,0 +1,105 @@
+﻿.settingsContainer{
+    display: flex;
+    flex-direction: row;
+}
+
+.leftContainer {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+}
+
+.rightContainer{
+    font-size: 60%;
+    margin-top: 0;
+}
+
+.rightContainer > .box{
+    margin-top: 4px;
+}
+
+
+.infoRow {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.key {
+    padding-right: 3em;
+}
+
+.value {
+    font-weight: bold;
+    white-space: nowrap;
+    text-align: center;
+    padding-top: 5px;
+    width: 100%;
+}
+
+.value-number {
+    width: 36px;
+
+}
+
+.value-level {
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+
+.valueContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 36px;
+}
+
+.control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-small {
+    font-weight: bold;
+    font-size: 26px;
+    border: none;
+
+    background-color: transparent;
+    box-sizing: border-box;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+}
+
+.plus {
+    color: var(--green-color);
+    transition: 0.5s;
+}
+
+.minus {
+    color: red;
+    transition: 0.5s;
+}
+
+.plus:active {
+    color: var(--green-gray-color);
+}
+
+
+.minus:active {
+    color: var(--red-gray-color);
+}
+
+.locked {
+    color: var(--gray-color);
+}
+
+.minus:active {
+    color: var(--gray-color);
+}
+
+.plus:active {
+    color: var(--gray-color);
+}

@@ -1,0 +1,247 @@
+:root {
+    --hex-width: 40px;
+    --hex-height: 46px;
+    --hex-h-gap: 2px;
+    --hex-v-gap: 2px;
+    --hex-h-spacing: calc(var(--hex-width) + var(--hex-h-gap));
+    --hex-v-spacing: calc(var(--hex-height) - var(--hex-height) / 4 + var(--hex-v-gap));
+    --player-color: #FFF;
+}
+
+body {
+    margin: 0;
+    background: #222;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 90%;
+}
+
+#hex-wrapper {
+    position: relative;
+    width: max-content;
+    height: max-content;
+}
+
+#dominateIo-container {
+    position: relative;
+}
+
+.hex-wrapper {
+    position: absolute;
+    width: var(--hex-width);
+    height: var(--hex-height);
+    background: white;
+    clip-path: polygon(
+            50% 0%,
+            100% 25%,
+            100% 75%,
+            50% 100%,
+            0% 75%,
+            0% 25%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 0;
+    transition: transform 0.2s ease;
+}
+
+.hex-wrapper.selected {
+    transform: translateY(-8px);
+    z-index: 10;
+}
+
+.hex-cell {
+    width: 95%;
+    height: 95%;
+    background: #111;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1;
+    clip-path: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+#scoreboard {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--green-color);
+    text-align: center;
+}
+
+#scoreboard span {
+    color: var(--green-color);
+}
+
+#controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+#buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+    position: absolute;
+    bottom: 20px;
+}
+
+#current-player {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px;
+    color: var(--green-color);
+}
+
+#current-player span {
+    text-transform: uppercase;
+    color: var(--player-color);
+}
+
+
+.button {
+    padding: 10px 20px;
+    font-weight: bold;
+    line-height: normal;
+    font-size: 25px;
+    border: none;
+    background-color: #333;
+    color: #fff;
+    border-radius: 2px;
+    transition: background 0.2s ease;
+    height: auto;
+    white-space: nowrap;
+}
+
+#phase-button {
+    color: #ccc;
+}
+
+#auto-upgrade {
+    color: orange;
+    display: none;
+}
+
+#dominators-list {
+    position: absolute;
+    right: 100px;
+    top: 50px;
+    background-color: var(--gray-color);
+    padding: 10px;
+    width: 200px;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    display: flex;
+}
+
+.dominator {
+    display: flex;
+    margin-bottom: 10px;
+    font-size: 24px;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.dominator .name {
+    font-weight: bold;
+}
+
+.dominator .color-box {
+    width: 20px;
+    height: 20px;
+}
+
+.dominator.current .name {
+    color: var(--green-color);
+}
+
+.dominator:not(.current) .name {
+    color: var(--text-color);
+}
+
+.color-box {
+    border: 1px solid white;
+}
+
+button:hover {
+    background-color: #555;
+}
+
+.highlight {
+    background-color: #FFC000;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.hex-wrapper.hex-big::after {
+    content: "";
+    position: absolute;
+    inset: 10%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 40%, transparent 70%);
+    clip-path: inherit;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@media (max-width: 768px) {
+    #buttons {
+        flex-direction: column;
+        align-items: center;
+        position: static;
+        margin-top: 20px;
+    }
+
+    .button {
+        width: 80vw;
+        max-width: 300px;
+        font-size: 20px;
+        padding: 12px 0;
+        text-align: center;
+    }
+
+    #dominators-list {
+        position: static;
+        width: 90%;
+        max-width: 300px;
+        margin: 0 auto 20px auto;
+        right: auto;
+        top: auto;
+        background-color: var(--gray-color);
+        padding: 15px;
+        box-sizing: border-box;
+    }
+
+    .dominator {
+        text-align: left;
+    }
+
+    .dominator .name {
+        margin-bottom: 5px;
+    }
+
+    .dominator .color-box {
+        margin-left: 0;
+    }
+}

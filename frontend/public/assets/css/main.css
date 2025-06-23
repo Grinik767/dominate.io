@@ -1,0 +1,176 @@
+﻿:root {
+    --text-color: #A0A0A0;
+    --background-color: #1e1e1e;
+    --gray-color: #2b2b2b;
+    --green-color: #c2fe0c;
+    --red-color: red;
+    --orange-color: orange;
+
+    --green-gray-color: #87b108;
+    --red-gray-color: #b20000;
+
+}
+
+body,html {
+    margin: 0;
+    padding: 0;
+    user-select: none;           /* Standard */
+    -webkit-user-select: none;   /* Safari */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* Internet Explorer/Edge */
+}
+* {
+    box-sizing: border-box;
+}
+
+h1 {
+    color: white;
+}
+
+
+body {
+    opacity: 1;
+    font-family: Inter, sans-serif;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    font-size: 28px;
+    transition: opacity 0.15s ease;
+}
+
+body.fade-out {
+    opacity: 0;
+}
+
+p {
+    text-transform: uppercase;
+    font-weight: bold;
+    margin: 4px;
+}
+
+/* button */
+
+.inp, .btn {
+    box-sizing: border-box;
+    font-size: 16px;
+    text-align: left;
+    font-family: Inter, sans-serif;
+    font-weight: bold;
+    color: var(--text-color);
+
+
+    height: 30px;
+    padding: 4px 10px;
+    margin: 4px;
+    background-color: #373737;
+
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.btn {
+    border: none;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.btn:hover {
+    color: var(--green-color);
+}
+
+
+.btn:active {
+    background-color: var(--gray-color);
+}
+
+.btn.active {
+    background-color: var(--gray-color);
+}
+
+.red:hover {
+    color: red;
+}
+
+/* input */
+
+.inp {
+    border: 2px solid transparent;
+    border-radius: 0;
+    box-sizing: border-box;
+}
+
+.inp:focus {
+    outline: none;
+}
+
+.inp.accept {
+    border: 2px solid var(--green-color);
+    color: var(--green-color);
+    box-shadow: 0 0 0 1px var(--green-color);
+}
+
+.inp.denied {
+    border: 2px solid red;
+    color: red;
+    box-shadow: 0 0 0 1px red;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+}
+
+.right {
+    display: flex;
+    justify-content: right;
+}
+
+.box {
+    background-color: #373737;
+    padding: 15px;
+    border: 1px solid #444;
+    margin: 20px;
+}
+
+.red {
+    color: var(--red-color);
+}
+
+.green {
+    color: var(--green-color);
+}
+
+.orange {
+    color: var(--orange-color);
+}
+
+.errorMessage {
+    margin-top: 20px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    color: red;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 16px;
+    max-width: 700px;
+
+    position: absolute;
+
+}
+
+.errorMessage.visible {
+    opacity: 1;
+}
+
+.unselectable {
+    user-select: none;           /* Standard */
+    -webkit-user-select: none;   /* Safari */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* Internet Explorer/Edge */
+}
+
+.selectable {
+    user-select: text;           /* Standard */
+    -webkit-user-select: text;   /* Safari */
+    -moz-user-select: text;      /* Firefox */
+    -ms-user-select: text;       /* IE/Edge */
+}
+

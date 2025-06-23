@@ -1,0 +1,14 @@
+{
+  "lobbies": [
+    { "code": "AAAA", "sessionId": "sess-123" },
+    { "code": "A1BI", "sessionId": "sess-456" }
+  ],
+  "lobbyInfo": {
+    "users": [
+      { "name": "Cyecid", "ready" : true},
+      { "name": "Keker", "ready" : true},
+      { "name": "Sex", "ready" : false}
+    ],
+    "owner": "Cyecid"
+  }
+}

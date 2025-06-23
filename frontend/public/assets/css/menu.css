@@ -1,0 +1,58 @@
+﻿h1 span {
+    font-weight: normal;
+}
+
+h3 {
+    font-size: 64px;
+}
+
+.menuWrapper {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    box-sizing: border-box;
+    height: 100vh;
+}
+
+.menu {
+    padding: 2em;
+}
+
+.menuList {
+    list-style: none;
+    padding: 0;
+}
+
+.menuItem {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.menuLink {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+}
+
+.indicator {
+    width: 10px;
+    height: 10px;
+    margin-right: 10px;
+    background-color: transparent;
+    transition: background-color 0.2s;
+}
+
+
+.menuItem.selected {
+    color: var(--green-color);
+    font-weight: bold;
+}
+
+.menuItem .indicator.selected {
+    background-color: var(--green-color);
+}

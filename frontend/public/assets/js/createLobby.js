@@ -8,10 +8,10 @@ let startGameButton;
 let fieldSize = 6;
 
 const minCountPlayers = 2;
-const maxCountPlayers = 4;
+const maxCountPlayers = 8;
 
 const minFiledSize = 3;
-const maxFiledSize = 6;
+const maxFiledSize = 7;
 
 const countPlayersEl = document.querySelector('.value-number');
 const fieldSizeEl = document.querySelector("#fieldSize .value-number");

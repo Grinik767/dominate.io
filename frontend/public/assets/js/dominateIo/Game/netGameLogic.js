@@ -263,14 +263,17 @@ export class NetGameLogic extends EventTarget {
          * Выполняет логику окончания разных фаз
          */
         if (this.state.capturePhase) {
-            this.state.currentDominator.influencePoints += this.state.currentDominator.ownedCells.size;
+            this.state.currentDominator.influencePoints = this.state.currentDominator.ownedCells.size;
+        }
+        else {
+            this.state.currentDominator.influencePoints = 0;
         }
 
-        const total = this.state.dominators.length;
-        while (this.state.currentDominator.name !== nextDominatorNickname) {
-            if (this.state.dominators[this.state.currentDominatorIndex].eliminated) continue;
-            this.state.currentDominatorIndex = (this.state.currentDominatorIndex + 1) % total;
-        }
+        this.state.dominators.forEach((dominator) => {
+            if (dominator.name === nextDominatorNickname) {
+                this.state.currentDominatorIndex = dominator.index;
+            }
+        })
 
         this.state.capturePhase = !this.state.capturePhase;
         this.selected = null;
@@ -339,6 +342,7 @@ export class NetGameLogic extends EventTarget {
                 const nickname = data.nickname;
                 if (nickname === this.playerName) return;
                 this.currentDominator.agent.submitMove(new Move('changeCells', data.moves));
+                console.log("data in MoveMade: ", data.playeerQueue, data);
             }
             else if (data.type === "PhaseEnd") {
                 this.state.currentDominator.agent.submitMove(new Move('endPhase', {nextPlayer: this.state.currentDominator.name}));

@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    const name = localStorage.getItem("playerName");
+
     buttonConnect = document.querySelector('.btn');
     const input = document.querySelector('.inp');
     const errorMessage = document.querySelector('.errorMessage');
@@ -29,7 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        fetch(backendPreffix + `/Lobby/${code}`, {
+        console.log()
+        fetch(backendPreffix + `/Lobby/${code}/${name}`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -38,8 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(async response => {
                 const data = await response.json().catch(() => null);
                 if (response.ok) {
-                    if (data?.isEaxist === false) {
-                        throw new Error('Лобби не найдено');
+                    if (data?.isExist === false) {
+                        throw new Error('Лобби не найдено.');
+                    }
+                    if (data?.hasFreeSpace === false) {
+                        throw new Error('В лобби нет мест.');
+                    }
+                    if (data?.canJoin === false) {
+                        throw new Error('С таким никнеймом нельзя подключиться.');
                     }
                     return data;
                 }

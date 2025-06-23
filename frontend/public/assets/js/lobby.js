@@ -104,7 +104,6 @@ function setUpConnection(code) {
                         return acc;
                     }, {});
                     sessionStorage.setItem('players', JSON.stringify(players));
-                    // sessionStorage.removeItem('lobbyInfo');
                     window.location.href = '/onlineGame.html';
                     break;
                 case 'PlayerLeft':
@@ -120,6 +119,13 @@ function setUpConnection(code) {
                     console.warn('Unknown message type:', data.type);
             }
         });
+
+        socket.onclose = (message) => {
+            if (message.code === 1011){
+                window.location.href = '/error.html';
+            }
+            console.log(message);
+        }
 
         socket.addEventListener('error', (err) => {
             console.error('WebSocket error:', err);

@@ -160,8 +160,8 @@ export class GameLogic extends EventTarget {
                     this._eliminate(oldIndex);
                 }
             } else {
-                ceilFrom.power = 1;
                 ceilTo.power = Math.max(ceilTo.power - ceilFrom.power, 1);
+                ceilFrom.power = 1;
             }
         }
     }

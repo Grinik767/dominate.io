@@ -173,8 +173,8 @@ export class NetGameLogic extends EventTarget {
                 }
 
             } else {
-                ceilFrom.power = 1;
                 ceilTo.power = Math.max(ceilTo.power - ceilFrom.power, 1);
+                ceilFrom.power = 1;
             }
 
             this.submitMakeMove([ceilTo.toDictionary(), ceilFrom.toDictionary()]);

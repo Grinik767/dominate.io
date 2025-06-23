@@ -37,9 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
         })
             .then(async response => {
                 const data = await response.json().catch(() => null);
-
                 if (response.ok) {
-                    if (data?.isExist === false) {
+                    if (data?.isEaxist === false) {
                         throw new Error('Лобби не найдено');
                     }
                     return data;

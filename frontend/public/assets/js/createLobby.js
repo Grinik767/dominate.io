@@ -1,17 +1,28 @@
 import {backendPreffix} from "./dominateIo/globals.js";
 import {generateField} from "./dominateIo/Game/field.js";
 import {makeFadeOut, makeFadeIn, emulateButtonClick} from "./utils.js";
+import {AudioPlayer} from "./audioManager.js";
 
 let playerCount = 2;
 let startGameButton;
+let fieldSize = 6;
 
 const minCountPlayers = 2;
 const maxCountPlayers = 4;
 
+const minFiledSize = 3;
+const maxFiledSize = 6;
+
 const countPlayersEl = document.querySelector('.value-number');
+const fieldSizeEl = document.querySelector("#fieldSize .value-number");
+
 
 const plusButton = document.querySelector('.plus');
 const minusButton = document.querySelector('.minus');
+
+const fieldSizePlus = document.querySelector('#fieldSize .plus');
+const fieldSizeMinus = document.querySelector('#fieldSize .minus');
+
 
 document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener('keydown', (e) => {
@@ -22,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     countPlayersEl.textContent = playerCount.toString();
+    fieldSizeEl.textContent = fieldSize.toString();
 
     plusButton.addEventListener("click", () => {
         if (!plusButton.classList.contains('locked'))
@@ -33,13 +45,39 @@ document.addEventListener("DOMContentLoaded", () => {
             changeCountPlayers(-1)
     });
 
+    fieldSizePlus.addEventListener("click", () => {
+        if (!fieldSizePlus.classList.contains('locked'))
+            changeFieldSize(1)
+
+        AudioPlayer.playSound('up')
+    });
+
+    fieldSizeMinus.addEventListener("click", () => {
+        if (!fieldSizeMinus.classList.contains('locked'))
+            changeFieldSize(-1);
+
+        AudioPlayer.playSound('down')
+    });
+
     updateAvailability();
+    updateAvailabilityFieldSizeButtons();
 
     startGameButton = document.getElementById("createLobby");
     startGameButton.addEventListener("click", createLobby);
 
     makeFadeIn();
 });
+
+function changeFieldSize(delta) {
+    let size = fieldSize;
+
+    size = Math.min(maxFiledSize, Math.max(minFiledSize, size + delta));
+    fieldSizeEl.textContent = size.toString();
+
+    fieldSize = size;
+    updateAvailabilityFieldSizeButtons();
+}
+
 
 function changeCountPlayers(delta) {
     let count = playerCount;
@@ -66,12 +104,23 @@ function updateAvailability() {
     }
 }
 
+function updateAvailabilityFieldSizeButtons() {
+    fieldSizeMinus.classList.remove('locked');
+    fieldSizePlus.classList.remove('locked');
+    if (fieldSize === maxFiledSize) {
+        fieldSizePlus.classList.add('locked');
+    } else if (fieldSize === minFiledSize) {
+        fieldSizeMinus.classList.add('locked');
+    }
+}
+
+
 async function createLobby() {
     try {
         console.log("Creating Lobby");
         const dominators = Array.from({length: playerCount},
             (_, i) => ({index: i, ownedCells: new Set()}))
-        const field = generateField(5, dominators);
+        const field = generateField(fieldSize, dominators);
         const cells = field.toCells();
         const LobbyInfo = {
             playersCount: playerCount,

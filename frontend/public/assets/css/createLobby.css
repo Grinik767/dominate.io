@@ -6,6 +6,11 @@
     width: 100%;
 }
 
+.key {
+    font-size: 60%;
+    padding-right: 3em;
+}
+
 .value-number {
     width: 36px;
 }

@@ -29,9 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('readyButton').addEventListener('click', toggleReadyStatusOfPlayer)
 document.getElementById('leaveButton').addEventListener('click', leaveLobby)
 
-// window.addEventListener("beforeunload", function (e) {
-//     closeConnection();
-// });
 
 document.getElementById("lobbyCode").addEventListener("click", function () {
     const h1 = this.querySelector("h1");
@@ -133,7 +130,7 @@ function setUpConnection(code) {
     } catch (error) {
         console.log(error.message);
         sessionStorage.setItem('errorMsg', error.message);
-        //window.location.href = '/error.html';
+        window.location.href = '/error.html';
     }
 }
 

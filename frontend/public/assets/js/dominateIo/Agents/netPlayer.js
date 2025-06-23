@@ -1,7 +1,7 @@
 import {Agent} from "./agent.js";
 
 /**
- * Represents a human player agent who makes moves via the UI.
+ * Представляет агент-человека, который делает ходы через пользовательский интерфейс.
  */
 export class NetPlayer extends Agent {
     constructor() {
@@ -10,8 +10,8 @@ export class NetPlayer extends Agent {
     }
 
     /**
-     * Called by the dominateIo loop. Returns a promise that resolves when the player makes a move.
-     * @returns {Promise<Object>} The move selected by the player.
+     * Вызывается циклом dominateIo. Возвращает промис, который разрешается, когда игрок делает ход.
+     * @returns {Promise<Object>} Ход, выбранный игроком.
      */
     async getMove(state) {
         return new Promise((resolve) => {
@@ -20,8 +20,8 @@ export class NetPlayer extends Agent {
     }
 
     /**
-     * Called by the UI when the player selects a move.
-     * @param {Move} move - The move chosen by the player.
+     * Вызывается пользовательским интерфейсом, когда игрок выбирает ход.
+     * @param {Move} move - Ход, выбранный игроком.
      */
     submitMove(move) {
         if (this._resolveMove) {

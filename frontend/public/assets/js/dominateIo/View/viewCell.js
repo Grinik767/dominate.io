@@ -45,7 +45,6 @@ export class ViewCell {
             this.el.dataset.owner = this.cell.owner.index;
             this.el.style.background = this.cell.owner.color;
         } else {
-            // TODO: Кажется data-owner не нужен уже
             this.el.removeAttribute('data-owner');
             this.el.style.background = '#111';
         }

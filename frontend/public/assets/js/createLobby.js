@@ -8,14 +8,13 @@ let startGameButton;
 let fieldSize = 6;
 
 const minCountPlayers = 2;
-const maxCountPlayers = 8;
+const maxCountPlayers = 4;
 
 const minFiledSize = 3;
 const maxFiledSize = 7;
 
 const countPlayersEl = document.querySelector('.value-number');
 const fieldSizeEl = document.querySelector("#fieldSize .value-number");
-
 
 const plusButton = document.querySelector('.plus');
 const minusButton = document.querySelector('.minus');
@@ -37,12 +36,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     plusButton.addEventListener("click", () => {
         if (!plusButton.classList.contains('locked'))
-            changeCountPlayers(1)
+            changeCountPlayers(1);
+
+        AudioPlayer.playSound('up');
     });
 
     minusButton.addEventListener("click", () => {
         if (!minusButton.classList.contains('locked'))
-            changeCountPlayers(-1)
+            changeCountPlayers(-1);
+
+        AudioPlayer.playSound('down');
     });
 
     fieldSizePlus.addEventListener("click", () => {

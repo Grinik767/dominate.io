@@ -15,7 +15,7 @@ const minCountBots = 0;
 const maxCountBots = 4;
 
 const minFiledSize = 3;
-const maxFiledSize = 6;
+const maxFiledSize = 5;
 
 const countBotsEl = document.querySelector('#botsCount .value-number');
 const countPlayersEl = document.querySelector('#playerCount .value-number');

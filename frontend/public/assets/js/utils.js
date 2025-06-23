@@ -1,7 +1,7 @@
 ﻿let pressingButton = false;
 let makingFadeOut = false;
 export function generateName(){
-    return "Player" + Math.floor(Math.random()*10000000);
+    return "Player" + Math.floor(Math.random()*1000);
 }
 
 

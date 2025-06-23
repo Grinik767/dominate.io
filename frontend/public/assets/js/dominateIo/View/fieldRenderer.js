@@ -29,7 +29,6 @@ export class FieldRenderer {
 
         const totalW = (qMax - qMin + 1) * hSpacing + hexWidth;
         const totalH = (rMax - rMin + 1) * vSpacing + hexHeight;
-        // TODO: Я временно добаил отсуп, чтобы по центру board был. Надо будет потом поправить
         const cx = totalW / 2, cy = totalH / 2 - 40;
 
         this.board.setSize(totalW, totalH);

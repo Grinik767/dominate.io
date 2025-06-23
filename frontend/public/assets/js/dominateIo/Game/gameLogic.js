@@ -128,7 +128,6 @@ export class GameLogic extends EventTarget {
         const ceilTo = this.state.cells.find(c => c.q === to.q && c.r === to.r);
         if (!ceilFrom || !ceilTo) return;
 
-        // Кажется ещё лучше добавить проверку на мощность.
         if (!this.canCapture(ceilFrom, ceilTo)) return;
 
         const key = `${to.q},${to.r}`;
@@ -206,19 +205,14 @@ export class GameLogic extends EventTarget {
 
             const c = upg[Math.floor(Math.random() * upg.length)];
 
-            // Submit a move
             dominator.agent.submitMove(new Move('upgrade', { q: c.q, r: c.r }));
 
-            // TODO: РАЗОБРАТЬСЯ КАК РАБОТАЕТ.
-            // Wait for main loop to process the move and come back to getMove()
             await new Promise(resolve => {
-                // Hook into the agent to resume autoUpgrade after the move is processed
                 const originalGetMove = dominator.agent.getMove.bind(dominator.agent);
                 dominator.agent.getMove = async (state) => {
-                    // Restore original getMove for next call
                     dominator.agent.getMove = originalGetMove;
-                    resolve(); // Continue autoUpgrade
-                    return await originalGetMove(state); // Proceed with normal behavior
+                    resolve();
+                    return await originalGetMove(state);
                 };
             });
         }

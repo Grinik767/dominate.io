@@ -7,15 +7,6 @@ export function generateName(){
 
 export function makeFadeOut(toPage = 'index.html') {
     window.location.href = toPage;
-    // if (makingFadeOut)
-    //     return;
-    // makingFadeOut = true;
-    // console.log('Called fade out');
-    // document.body.classList.add('fade-out');
-    // setTimeout(() => {
-    //     window.location.href = toPage;
-    //     makingFadeOut = false;
-    // }, 150);
 }
 
 
